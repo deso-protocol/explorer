@@ -9,6 +9,11 @@ COPY ./package-lock.json .
 # into the container so we get docker cache benefits
 RUN npm install
 
+# running ngcc before build_prod lets us utilize the docker
+# cache and significantly speeds up builds without requiring us
+# to import/export the node_modules folder from the container
+RUN npm run ngcc
+
 COPY ./angular.json .
 COPY ./tsconfig.json .
 COPY ./tsconfig.app.json .
