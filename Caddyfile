@@ -1,0 +1,9 @@
+{
+    admin off
+    auto_https off
+}
+
+:80 {
+    file_server
+    try_files {path} index.html
+}
