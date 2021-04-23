@@ -13,6 +13,16 @@
         Search
       </div>
     </div>
+    <div *ngIf="CURRENT_PAGE > 1" (click)="prevPage()" class="btn btn-light little-button" style="text-decoration: none; margin-left: .5rem;">
+      <div class="divtext">
+        Previous Page
+      </div>
+    </div>
+    <div *ngIf="showNextPageBtn()" (click)="nextPage()" class="btn btn-light little-button" style="text-decoration: none; margin-left: .5rem;">
+      <div class="divtext">
+        Next Page
+      </div>
+    </div>
   </div>
   <div style="margin-top: .5rem;">
 Learn more about DeSo at <a href="https://deso.org" target="_blank">deso.org</a>.
@@ -78,8 +88,8 @@ Learn more about DeSo at <a href="https://deso.org" target="_blank">deso.org</a>
     </div>
     <div *ngFor="let thisTxn of txnRes.Transactions; index as txnIndex" style="padding-top: 1rem;">
       <div>
-        <span>Transaction #{{txnIndex}}</span>
-        <span *ngIf="txnIndex === 0"> (latest)</span>:
+        <span>Transaction #{{txnIndex + (CURRENT_PAGE - 1)*PAGE_SIZE}}</span>
+        <span *ngIf="txnIndex === 0 && CURRENT_PAGE === 1"> (latest)</span>:
       </div>
       <div style="padding-left: 2rem;">
         <div>

@@ -35,6 +35,13 @@ export class AppComponent implements OnInit {
   hasInitialized = false;
   txnsLoading =  false;
 
+  // Pagination variables
+  PAGE_SIZE = 10;
+  CURRENT_PAGE = 1;
+  PAGES: {[k: number]: any} = {};
+  LastTransactionIDBase58Check = '';
+  LastPublicKeyTransactionIndex = -1;
+
   ngOnInit(): void {
     // Debounce because angular fires twice when loading with a param
     this.route.queryParams.pipe(debounceTime(200)).subscribe((params: Params) => {
@@ -102,6 +109,12 @@ export class AppComponent implements OnInit {
       return;
     }
 
+    // Reset the pagination
+    this.CURRENT_PAGE = 1;
+    this.PAGES = {};
+    this.LastPublicKeyTransactionIndex = -1;
+    this.LastTransactionIDBase58Check = '';
+
     if (this.explorerQuery.startsWith('BC') || this.explorerQuery.startsWith('tBC')) {
       this.router.navigate(['/'], { queryParams: { 'query-node': this.queryNode, 'public-key': this.explorerQuery }});
     } else if (this.explorerQuery === 'mempool') {
@@ -135,7 +148,12 @@ export class AppComponent implements OnInit {
       res.Transactions.reverse();
       this.txnRes = {
         Transactions: res.Transactions,
+        LastTransactionIDBase58Check: res.LastTransactionIDBase58Check,
+        LastPublicKeyTransactionIndex: res.LastPublicKeyTransactionIndex,
       };
+      this.LastTransactionIDBase58Check = res.LastTransactionIDBase58Check;
+      this.LastPublicKeyTransactionIndex = res.LastPublicKeyTransactionIndex;
+      this.PAGES[this.CURRENT_PAGE] = this.txnRes;
     }
 
     this.ref.detectChanges();
@@ -180,12 +198,17 @@ export class AppComponent implements OnInit {
       this.httpClient.post<any>(
         `${this.queryNode}/api/v1/transaction-info`, {
           PublicKeyBase58Check: this.explorerQuery,
+          LastTransactionIDBase58Check: this.LastTransactionIDBase58Check,
+          LastPublicKeyTransactionIndex: this.LastPublicKeyTransactionIndex,
+          Limit: this.PAGE_SIZE,
         }).subscribe((res) => this.responseHandler(this, res), (err) => this.errorHandler(this, err));
 
     } else if (this.explorerQuery === 'mempool') {
       this.httpClient.post<any>(
       `${this.queryNode}/api/v1/transaction-info`, {
-        IsMempool: true,
+          IsMempool: true,
+          LastTransactionIDBase58Check: this.LastTransactionIDBase58Check,
+          Limit: this.PAGE_SIZE,
       }).subscribe((res) => this.responseHandler(this, res), (err) => this.errorHandler(this, err));
 
     } else if (this.explorerQuery.startsWith('3Ju') || this.explorerQuery.startsWith('CbU')) {
@@ -214,6 +237,33 @@ export class AppComponent implements OnInit {
     } else {
       this.txnsLoading = false;
       alert(this.errorStr);
+    }
+  }
+
+  showNextPageBtn(): boolean {
+    return this.txnRes && this.txnRes.Transactions && this.txnRes.Transactions.length === this.PAGE_SIZE;
+  }
+
+  nextPage(): void {
+    this.getPage(this.CURRENT_PAGE + 1);
+  }
+
+  prevPage(): void {
+    if (this.CURRENT_PAGE === 1) {
+      alert('Invalid page');
+      return;
+    }
+    this.getPage(this.CURRENT_PAGE - 1);
+  }
+
+  getPage(page: number): void {
+    this.CURRENT_PAGE = page;
+    if (this.CURRENT_PAGE in this.PAGES) {
+      this.txnRes = this.PAGES[this.CURRENT_PAGE];
+      this.LastTransactionIDBase58Check = this.txnRes.LastTransactionIDBase58Check;
+      this.LastPublicKeyTransactionIndex = this.txnRes.LastPublicKeyTransactionIndex;
+    } else {
+      this.submitQuery();
     }
   }
 }
