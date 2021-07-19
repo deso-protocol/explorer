@@ -28,6 +28,6 @@ FROM caddy:2.3.0-alpine
 WORKDIR /explorer
 
 COPY ./Caddyfile .
-COPY --from=explorer /explorer/dist .
+COPY --from=explorer /explorer/dist/explorer .
 
 ENTRYPOINT ["caddy", "run"]
