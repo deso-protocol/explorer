@@ -20,7 +20,7 @@ export class AppComponent implements OnInit {
   explorerQuery = '';
   explorerResponse = null;
   queryNode = '';
-  errorStr = ('Please enter a valid BitClout public key, transaction ID, block ' +
+  errorStr = ('Please enter a valid DeSo public key, transaction ID, block ' +
     'hash, or block height. Public keys start with "BC", transaction IDs ' +
     'start with "3J", and block hashes usually start with zeros.');
   publicKeyNoticeStr = ('NOTE: Looking up transactions using a public key will ' +

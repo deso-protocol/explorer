@@ -1,9 +1,9 @@
 <div class="explorer-container">
   <div class="welcome-top">
-    Welcome to the BitClout Block Explorer
+    Welcome to the DeSo Block Explorer
   </div>
   <div class="welcome">
-    Enter a BitClout transaction ID, public key, block hash, or block height.
+    Enter a DeSo transaction ID, public key, block hash, or block height.
   </div>
   <div style="margin-top: .5rem;">
     <input (keypress)="searchEnterPressed($event)" [(ngModel)]="explorerQuery" placeholder="Block hash, transaction ID, public key, or block height..."
@@ -15,7 +15,7 @@
     </div>
   </div>
   <div style="margin-top: .5rem;">
-    Browse the BitClout social network or learn more about the project <a href="https://bitclout.com" target="_blank">here</a>.
+    Browse the DeSo social network or learn more about the project <a href="https://bitclout.com" target="_blank">here</a>.
   </div>
 
   <div *ngIf="blockRes != null" style="padding-top: 1rem;">
@@ -129,13 +129,13 @@
                   Bitcoin Burned: {{(thisTxn.TransactionMetadata.BitcoinExchangeTxindexMetadata.SatoshisBurned / 1e8).toFixed(8)}}
                 </div>
                 <div>
-                  BitClout Created: {{(thisTxn.TransactionMetadata.BitcoinExchangeTxindexMetadata.NanosCreated / 1e9).toFixed(9)}}
+                  DeSo Created: {{(thisTxn.TransactionMetadata.BitcoinExchangeTxindexMetadata.NanosCreated / 1e9).toFixed(9)}}
                 </div>
                 <div>
-                  Total BitClout Purchased Before: {{(thisTxn.TransactionMetadata.BitcoinExchangeTxindexMetadata.TotalNanosPurchasedBefore / 1e9).toFixed(9)}}
+                  Total DeSo Purchased Before: {{(thisTxn.TransactionMetadata.BitcoinExchangeTxindexMetadata.TotalNanosPurchasedBefore / 1e9).toFixed(9)}}
                 </div>
                 <div>
-                  Total BitClout Purchased After: {{(thisTxn.TransactionMetadata.BitcoinExchangeTxindexMetadata.TotalNanosPurchasedAfter / 1e9).toFixed(9)}}
+                  Total DeSo Purchased After: {{(thisTxn.TransactionMetadata.BitcoinExchangeTxindexMetadata.TotalNanosPurchasedAfter / 1e9).toFixed(9)}}
                 </div>
                 <div>
                   Bitcoin Transaction ID: <a href="https://www.blockchain.com/btc/tx/{{thisTxn.TransactionMetadata.BitcoinExchangeTxindexMetadata.BitcoinTxnHash}}" target="_blank">
@@ -196,7 +196,7 @@
               >{{txnOutput.PublicKeyBase58Check}}</a>
             </div>
             <div>
-              <span style="width: 15rem; display: inline-block;">BitClout:</span>{{(txnOutput.AmountNanos / 1e9).toFixed(9)}}
+              <span style="width: 15rem; display: inline-block;">DeSo:</span>{{(txnOutput.AmountNanos / 1e9).toFixed(9)}}
             </div>
           </div>
         </div>
