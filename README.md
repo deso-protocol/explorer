@@ -1,6 +1,6 @@
 # Explorer
 
-The BitClout block explorer
+The DeSo block explorer
 
 ## Development server
 
