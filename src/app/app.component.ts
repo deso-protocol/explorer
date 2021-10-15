@@ -35,9 +35,16 @@ export class AppComponent implements OnInit {
   hasInitialized = false;
   txnsLoading =  false;
 
+  // Pagination variables
+  PAGE_SIZE = 200;
+  CURRENT_PAGE = 1;
+  PAGES: {[k: number]: any} = {};
+  LastTransactionIDBase58Check = '';
+  LastPublicKeyTransactionIndex = -1;
+
   ngOnInit(): void {
     // Debounce because angular fires twice when loading with a param
-    this.route.queryParams.pipe(debounceTime(200)).subscribe((params: Params) => {
+    this.route.queryParams.subscribe((params: Params) => {
       this.hasInitialized = true;
       this.refreshParams(params);
     });
@@ -69,9 +76,26 @@ export class AppComponent implements OnInit {
       this.explorerQuery = 'tip';
     }
 
+    if (params['last-txn-idx'] != null) {
+      this.LastPublicKeyTransactionIndex = Number(params['last-txn-idx']);
+    }
+
+    if (params['last-txn-hash'] != null) {
+      this.LastTransactionIDBase58Check = params['last-txn-hash'];
+    }
+
+    if (params['page'] != null) {
+      this.CURRENT_PAGE = Number(params['page']);
+    }
+
     console.log(this.queryNode);
     console.log(this.explorerQuery);
     this.submitQuery();
+  }
+
+  searchButtonPressed(): void {
+    this.resetPagination();
+    this.relocateForQuery();
   }
 
   searchEnterPressed(event: KeyboardEvent): void {
@@ -79,6 +103,7 @@ export class AppComponent implements OnInit {
       return;
     }
 
+    this.resetPagination();
     this.relocateForQuery();
   }
 
@@ -96,6 +121,14 @@ export class AppComponent implements OnInit {
     document.body.removeChild(selBox);
   }
 
+  resetPagination(): void {
+    // Reset the pagination
+    this.CURRENT_PAGE = 1;
+    this.PAGES = {};
+    this.LastPublicKeyTransactionIndex = -1;
+    this.LastTransactionIDBase58Check = '';
+  }
+
   relocateForQuery(): void {
     if (this.explorerQuery == null || this.explorerQuery === '') {
       alert(this.errorStr);
@@ -103,15 +136,34 @@ export class AppComponent implements OnInit {
     }
 
     if (this.explorerQuery.startsWith('BC') || this.explorerQuery.startsWith('tBC')) {
-      this.router.navigate(['/'], { queryParams: { 'query-node': this.queryNode, 'public-key': this.explorerQuery }});
+      this.router.navigate(['/'], { queryParams: {
+        'query-node': this.queryNode,
+        'public-key': this.explorerQuery,
+        'last-txn-idx': this.LastPublicKeyTransactionIndex,
+        'page': this.CURRENT_PAGE,
+      }});
     } else if (this.explorerQuery === 'mempool') {
-      this.router.navigate(['/'], { queryParams: { 'query-node': this.queryNode, mempool: true }});
+      this.router.navigate(['/'], { queryParams: {
+        'query-node': this.queryNode,
+        'last-txn-hash': this.LastTransactionIDBase58Check,
+        'page': this.CURRENT_PAGE,
+        mempool: true
+      }});
     } else if (this.explorerQuery.startsWith('3Ju') || this.explorerQuery.startsWith('CbU')) {
-      this.router.navigate(['/'], { queryParams: { 'query-node': this.queryNode, 'transaction-id': this.explorerQuery }});
+      this.router.navigate(['/'], { queryParams: {
+        'query-node': this.queryNode,
+        'transaction-id': this.explorerQuery
+      }});
     } else if (this.explorerQuery.length === 64) {
-      this.router.navigate(['/'], { queryParams: { 'query-node': this.queryNode, 'block-hash': this.explorerQuery }});
+      this.router.navigate(['/'], { queryParams: {
+        'query-node': this.queryNode,
+        'block-hash': this.explorerQuery
+       }});
     } else if (parseInt(this.explorerQuery, 10) != null && !isNaN(parseInt(this.explorerQuery, 10))) {
-      this.router.navigate(['/'], { queryParams: { 'query-node': this.queryNode, 'block-height': this.explorerQuery}});
+      this.router.navigate(['/'], { queryParams: {
+        'query-node': this.queryNode,
+        'block-height': this.explorerQuery
+      }});
     } else {
       alert(this.errorStr);
     }
@@ -132,10 +184,19 @@ export class AppComponent implements OnInit {
         }
       }
 
+      // Reverse the list so newest transactions are at the top of the page
       res.Transactions.reverse();
+
       this.txnRes = {
         Transactions: res.Transactions,
+        LastTransactionIDBase58Check: res.LastTransactionIDBase58Check,
+        LastPublicKeyTransactionIndex: res.LastPublicKeyTransactionIndex,
+        BalanceNanos: res.BalanceNanos,
       };
+
+      this.LastTransactionIDBase58Check = res.LastTransactionIDBase58Check;
+      this.LastPublicKeyTransactionIndex = res.LastPublicKeyTransactionIndex;
+      this.PAGES[this.CURRENT_PAGE] = this.txnRes;
     }
 
     this.ref.detectChanges();
@@ -165,6 +226,14 @@ export class AppComponent implements OnInit {
       return;
     }
 
+    // Cache paginated results
+    if (this.CURRENT_PAGE in this.PAGES) {
+      this.txnRes = this.PAGES[this.CURRENT_PAGE];
+      this.LastTransactionIDBase58Check = this.txnRes.LastTransactionIDBase58Check;
+      this.LastPublicKeyTransactionIndex = this.txnRes.LastPublicKeyTransactionIndex;
+      return
+    }
+
     // If we're calling submitQuery, set hasParam so the tip node information stops showing.
     this.hasParam = true;
     this.blockRes = null;
@@ -173,27 +242,35 @@ export class AppComponent implements OnInit {
 
     if (this.explorerQuery === 'tip') {
       this.httpClient.get<any>(
-        `${this.queryNode}/api/v1`
+        `${this.queryNode}/api/v1`, { withCredentials: true }
       ).subscribe((res) => this.responseHandler(this, res), (err) => this.errorHandler(this, err));
     } else if (this.explorerQuery.startsWith('BC') || this.explorerQuery.startsWith('tBC')) {
       // If the string starts with "BC" we treat it as a public key query.
       this.httpClient.post<any>(
         `${this.queryNode}/api/v1/transaction-info`, {
           PublicKeyBase58Check: this.explorerQuery,
-        }).subscribe((res) => this.responseHandler(this, res), (err) => this.errorHandler(this, err));
+          LastTransactionIDBase58Check: this.LastTransactionIDBase58Check,
+          LastPublicKeyTransactionIndex: this.LastPublicKeyTransactionIndex,
+          Limit: this.PAGE_SIZE,
+        }, { withCredentials: true }
+        ).subscribe((res) => this.responseHandler(this, res), (err) => this.errorHandler(this, err));
 
     } else if (this.explorerQuery === 'mempool') {
       this.httpClient.post<any>(
       `${this.queryNode}/api/v1/transaction-info`, {
-        IsMempool: true,
-      }).subscribe((res) => this.responseHandler(this, res), (err) => this.errorHandler(this, err));
+          IsMempool: true,
+          LastTransactionIDBase58Check: this.LastTransactionIDBase58Check,
+          Limit: this.PAGE_SIZE,
+      }, { withCredentials: true }
+      ).subscribe((res) => this.responseHandler(this, res), (err) => this.errorHandler(this, err));
 
     } else if (this.explorerQuery.startsWith('3Ju') || this.explorerQuery.startsWith('CbU')) {
       // If the string starts with 3Ju we treat it as a transaction ID.
       this.httpClient.post<any>(
       `${this.queryNode}/api/v1/transaction-info`, {
         TransactionIDBase58Check: this.explorerQuery,
-      }).subscribe((res) => this.responseHandler(this, res), (err) => this.errorHandler(this, err));
+      }, { withCredentials: true }
+      ).subscribe((res) => this.responseHandler(this, res), (err) => this.errorHandler(this, err));
 
     } else if (this.explorerQuery.length === 64) {
       // If it's 64 characters long, we know we're dealing with a block hash.
@@ -201,7 +278,8 @@ export class AppComponent implements OnInit {
         `${this.queryNode}/api/v1/block`, {
         HashHex: this.explorerQuery,
         FullBlock: true,
-      }).subscribe((res) => this.responseHandler(this, res), (err) => this.errorHandler(this, err));
+      }, { withCredentials: true }
+      ).subscribe((res) => this.responseHandler(this, res), (err) => this.errorHandler(this, err));
 
     } else if (parseInt(this.explorerQuery, 10) != null && !isNaN(parseInt(this.explorerQuery, 10))) {
       // As a last attempt, if the query can be parsed as a block height, then do that.
@@ -209,11 +287,26 @@ export class AppComponent implements OnInit {
       `${this.queryNode}/api/v1/block`, {
         Height: parseInt(this.explorerQuery, 10),
         FullBlock: true,
-      }).subscribe((res) => this.responseHandler(this, res), (err) => this.errorHandler(this, err));
+      }, { withCredentials: true }
+      ).subscribe((res) => this.responseHandler(this, res), (err) => this.errorHandler(this, err));
 
     } else {
       this.txnsLoading = false;
       alert(this.errorStr);
     }
+  }
+
+  showNextPageBtn(): boolean {
+    return (this.txnRes && this.txnRes.Transactions && this.txnRes.Transactions.length >= this.PAGE_SIZE) || this.CURRENT_PAGE > 1;
+  }
+
+  nextPage(): void {
+    this.CURRENT_PAGE += 1;
+    this.relocateForQuery();
+  }
+
+  prevPage(): void {
+    this.CURRENT_PAGE -= 1;
+    this.relocateForQuery();
   }
 }
