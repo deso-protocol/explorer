@@ -191,7 +191,7 @@ export class AppComponent implements OnInit {
 
     if (this.explorerQuery === 'tip') {
       this.httpClient.get<any>(
-        `${this.queryNode}/api/v1`
+        `${this.queryNode}/api/v1`, { withCredentials: true }
       ).subscribe((res) => this.responseHandler(this, res), (err) => this.errorHandler(this, err));
     } else if (this.explorerQuery.startsWith('BC') || this.explorerQuery.startsWith('tBC')) {
       // If the string starts with "BC" we treat it as a public key query.
@@ -201,7 +201,8 @@ export class AppComponent implements OnInit {
           LastTransactionIDBase58Check: this.LastTransactionIDBase58Check,
           LastPublicKeyTransactionIndex: this.LastPublicKeyTransactionIndex,
           Limit: this.PAGE_SIZE,
-        }).subscribe((res) => this.responseHandler(this, res), (err) => this.errorHandler(this, err));
+        }, { withCredentials: true }
+        ).subscribe((res) => this.responseHandler(this, res), (err) => this.errorHandler(this, err));
 
     } else if (this.explorerQuery === 'mempool') {
       this.httpClient.post<any>(
@@ -209,14 +210,16 @@ export class AppComponent implements OnInit {
           IsMempool: true,
           LastTransactionIDBase58Check: this.LastTransactionIDBase58Check,
           Limit: this.PAGE_SIZE,
-      }).subscribe((res) => this.responseHandler(this, res), (err) => this.errorHandler(this, err));
+      }, { withCredentials: true }
+      ).subscribe((res) => this.responseHandler(this, res), (err) => this.errorHandler(this, err));
 
     } else if (this.explorerQuery.startsWith('3Ju') || this.explorerQuery.startsWith('CbU')) {
       // If the string starts with 3Ju we treat it as a transaction ID.
       this.httpClient.post<any>(
       `${this.queryNode}/api/v1/transaction-info`, {
         TransactionIDBase58Check: this.explorerQuery,
-      }).subscribe((res) => this.responseHandler(this, res), (err) => this.errorHandler(this, err));
+      }, { withCredentials: true }
+      ).subscribe((res) => this.responseHandler(this, res), (err) => this.errorHandler(this, err));
 
     } else if (this.explorerQuery.length === 64) {
       // If it's 64 characters long, we know we're dealing with a block hash.
@@ -224,7 +227,8 @@ export class AppComponent implements OnInit {
         `${this.queryNode}/api/v1/block`, {
         HashHex: this.explorerQuery,
         FullBlock: true,
-      }).subscribe((res) => this.responseHandler(this, res), (err) => this.errorHandler(this, err));
+      }, { withCredentials: true }
+      ).subscribe((res) => this.responseHandler(this, res), (err) => this.errorHandler(this, err));
 
     } else if (parseInt(this.explorerQuery, 10) != null && !isNaN(parseInt(this.explorerQuery, 10))) {
       // As a last attempt, if the query can be parsed as a block height, then do that.
@@ -232,7 +236,8 @@ export class AppComponent implements OnInit {
       `${this.queryNode}/api/v1/block`, {
         Height: parseInt(this.explorerQuery, 10),
         FullBlock: true,
-      }).subscribe((res) => this.responseHandler(this, res), (err) => this.errorHandler(this, err));
+      }, { withCredentials: true }
+      ).subscribe((res) => this.responseHandler(this, res), (err) => this.errorHandler(this, err));
 
     } else {
       this.txnsLoading = false;
