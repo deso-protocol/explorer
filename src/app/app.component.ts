@@ -23,10 +23,6 @@ export class AppComponent implements OnInit {
   errorStr = ('Please enter a valid DeSo public key, transaction ID, block ' +
     'hash, or block height. Public keys start with "BC", transaction IDs ' +
     'start with "3J", and block hashes usually start with zeros.');
-  publicKeyNoticeStr = ('NOTE: Looking up transactions using a public key will ' +
-    'currently only return transactions with at least one ' +
-    'confirmation (i.e. transactions that have already been mined into a block).');
-  publicKeyNotice = '';
 
   blockRes: any;
   txnRes: any;
@@ -51,8 +47,6 @@ export class AppComponent implements OnInit {
   }
 
   refreshParams(params: any): void {
-    this.publicKeyNotice = '';
-
     if (params['query-node'] != null) {
       this.queryNode = params['query-node'];
     }
@@ -61,20 +55,27 @@ export class AppComponent implements OnInit {
       this.queryNode = 'https://api.bitclout.com';
     }
 
+    let newQuery = ''
     if (params.mempool) {
-      this.explorerQuery = 'mempool';
+      newQuery = 'mempool';
     } else if (params['block-hash'] != null) {
-      this.explorerQuery = params['block-hash'];
+      newQuery = params['block-hash'];
     } else if (params['block-height'] != null) {
-      this.explorerQuery = params['block-height'];
+      newQuery = params['block-height'];
     } else if (params['transaction-id'] != null) {
-      this.explorerQuery = params['transaction-id'];
+      newQuery = params['transaction-id'];
     } else if (params['public-key'] != null) {
-      this.explorerQuery = params['public-key'];
-      this.publicKeyNotice = this.publicKeyNoticeStr;
+      newQuery = params['public-key'];
     } else {
-      this.explorerQuery = 'tip';
+      newQuery = 'tip';
     }
+
+    // Reset pagination if core query changed
+    if (newQuery !== this.explorerQuery) {
+      this.resetPagination();
+    }
+
+    this.explorerQuery = newQuery;
 
     if (params['last-txn-idx'] != null) {
       this.LastPublicKeyTransactionIndex = Number(params['last-txn-idx']);
@@ -94,7 +95,6 @@ export class AppComponent implements OnInit {
   }
 
   searchButtonPressed(): void {
-    this.resetPagination();
     this.relocateForQuery();
   }
 
@@ -103,7 +103,6 @@ export class AppComponent implements OnInit {
       return;
     }
 
-    this.resetPagination();
     this.relocateForQuery();
   }
 
