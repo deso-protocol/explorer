@@ -44,7 +44,7 @@ export class AppComponent implements OnInit {
 
   ngOnInit(): void {
     // Debounce because angular fires twice when loading with a param
-    this.route.queryParams.subscribe((params: Params) => {
+    this.route.queryParams.pipe(debounceTime(10)).subscribe((params: Params) => {
       this.hasInitialized = true;
       this.refreshParams(params);
     });
