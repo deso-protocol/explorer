@@ -91,6 +91,7 @@ export class AppComponent implements OnInit {
 
     console.log(this.queryNode);
     console.log(this.explorerQuery);
+
     this.submitQuery();
   }
 
@@ -220,13 +221,17 @@ export class AppComponent implements OnInit {
   }
 
   submitQuery(): void {
+    console.log('Submitting query');
+
     if (this.explorerQuery == null || this.explorerQuery === '') {
+      console.error(this.errorStr)
       alert(this.errorStr);
       return;
     }
 
     // Cache paginated results
     if (this.CURRENT_PAGE in this.PAGES) {
+      console.log('Using cached paginated results for page ' + this.CURRENT_PAGE);
       this.txnRes = this.PAGES[this.CURRENT_PAGE];
       this.LastTransactionIDBase58Check = this.txnRes.LastTransactionIDBase58Check;
       this.LastPublicKeyTransactionIndex = this.txnRes.LastPublicKeyTransactionIndex;
@@ -262,21 +267,20 @@ export class AppComponent implements OnInit {
           Limit: this.PAGE_SIZE,
       }, { withCredentials: true }
       ).subscribe((res) => this.responseHandler(this, res), (err) => this.errorHandler(this, err));
-
-    } else if (this.explorerQuery.startsWith('3Ju') || this.explorerQuery.startsWith('CbU')) {
-      // If the string starts with 3Ju we treat it as a transaction ID.
-      this.httpClient.post<any>(
-      `${this.queryNode}/api/v1/transaction-info`, {
-        TransactionIDBase58Check: this.explorerQuery,
-      }, { withCredentials: true }
-      ).subscribe((res) => this.responseHandler(this, res), (err) => this.errorHandler(this, err));
-
-    } else if (this.explorerQuery.length === 64) {
-      // If it's 64 characters long, we know we're dealing with a block hash.
+    } else if (this.explorerQuery.startsWith('0')) {
+      // If it starts with a 0, we know we're dealing with a block hash.
       this.httpClient.post<any>(
         `${this.queryNode}/api/v1/block`, {
         HashHex: this.explorerQuery,
         FullBlock: true,
+      }, { withCredentials: true }
+      ).subscribe((res) => this.responseHandler(this, res), (err) => this.errorHandler(this, err));
+
+    } else if (this.explorerQuery.startsWith('3Ju') || this.explorerQuery.startsWith('CbU') || this.explorerQuery.length === 64) {
+      // If the string starts with 3Ju/CbU/or 64 chars (hex rosetta version) we treat it as a transaction ID.
+      this.httpClient.post<any>(
+      `${this.queryNode}/api/v1/transaction-info`, {
+        TransactionIDBase58Check: this.explorerQuery,
       }, { withCredentials: true }
       ).subscribe((res) => this.responseHandler(this, res), (err) => this.errorHandler(this, err));
 
