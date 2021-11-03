@@ -91,7 +91,6 @@ export class AppComponent implements OnInit {
 
     console.log(this.queryNode);
     console.log(this.explorerQuery);
-    console.log(this.prevQuery);
 
     this.explorerQuery = newQuery;
     this.prevQuery = newQuery;
@@ -146,6 +145,7 @@ export class AppComponent implements OnInit {
         'last-txn-idx': this.LastPublicKeyTransactionIndex,
         'page': this.CURRENT_PAGE,
       }});
+
     } else if (this.explorerQuery === 'mempool') {
       this.router.navigate(['/'], { queryParams: {
         'query-node': this.queryNode,
@@ -153,21 +153,25 @@ export class AppComponent implements OnInit {
         'page': this.CURRENT_PAGE,
         mempool: true
       }});
-    } else if (this.explorerQuery.startsWith('3Ju') || this.explorerQuery.startsWith('CbU')) {
-      this.router.navigate(['/'], { queryParams: {
-        'query-node': this.queryNode,
-        'transaction-id': this.explorerQuery
-      }});
-    } else if (this.explorerQuery.length === 64) {
+
+    } else if (this.explorerQuery.startsWith('0')) {
       this.router.navigate(['/'], { queryParams: {
         'query-node': this.queryNode,
         'block-hash': this.explorerQuery
        }});
+
+    } else if (this.explorerQuery.startsWith('3Ju') || this.explorerQuery.startsWith('CbU') || this.explorerQuery.length === 64) {
+      this.router.navigate(['/'], { queryParams: {
+        'query-node': this.queryNode,
+        'transaction-id': this.explorerQuery
+      }});
+
     } else if (parseInt(this.explorerQuery, 10) != null && !isNaN(parseInt(this.explorerQuery, 10))) {
       this.router.navigate(['/'], { queryParams: {
         'query-node': this.queryNode,
         'block-height': this.explorerQuery
       }});
+
     } else {
       alert(this.errorStr);
     }
@@ -304,7 +308,7 @@ export class AppComponent implements OnInit {
   }
 
   showNextPageBtn(): boolean {
-    return (this.txnRes && this.txnRes.Transactions && this.txnRes.Transactions.length >= this.PAGE_SIZE) || this.CURRENT_PAGE > 1;
+    return (this.txnRes && this.txnRes.Transactions && this.txnRes.Transactions.length >= this.PAGE_SIZE);
   }
 
   nextPage(): void {
