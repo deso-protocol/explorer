@@ -302,8 +302,18 @@ export class AppComponent implements OnInit {
   }
 
   showNextPageBtn(): boolean {
-    // We have a response with transactions that is at least a full page and is not a block (has a header)
-    return (this.txnRes && this.txnRes.Transactions && this.txnRes.Transactions.length >= this.PAGE_SIZE && !this.txnRes.Header);
+    return (
+      // We have a response with transactions
+      this.txnRes &&
+      this.txnRes.Transactions &&
+      // That is at least PAGE_SIZE
+      this.txnRes.Transactions.length >= this.PAGE_SIZE &&
+      // That is not a block
+      !this.txnRes.Header
+    ) || (
+      // OR we are loading transactions and on 2+ page
+      this.txnsLoading && this.CURRENT_PAGE >= 2
+    );
   }
 
   nextPage(): void {
