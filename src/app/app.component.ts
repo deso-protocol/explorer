@@ -17,6 +17,7 @@ export class AppComponent implements OnInit {
   ) {
   }
 
+  searchBar = '';
   explorerQuery = '';
   explorerResponse = null;
   queryNode = '';
@@ -88,11 +89,12 @@ export class AppComponent implements OnInit {
       this.resetPagination();
     }
 
-    this.explorerQuery = newQuery;
-
     console.log(this.queryNode);
     console.log(this.explorerQuery);
     console.log(newQuery);
+
+    this.explorerQuery = newQuery;
+    this.searchBar = newQuery;
 
     this.submitQuery();
   }
