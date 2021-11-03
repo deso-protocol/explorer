@@ -70,11 +70,6 @@ export class AppComponent implements OnInit {
       newQuery = 'tip';
     }
 
-    // Reset pagination if core query changed
-    if (newQuery !== this.explorerQuery) {
-      this.resetPagination();
-    }
-
     this.explorerQuery = newQuery;
 
     if (params['last-txn-idx'] != null) {
@@ -87,6 +82,11 @@ export class AppComponent implements OnInit {
 
     if (params['page'] != null) {
       this.CURRENT_PAGE = Number(params['page']);
+    }
+
+    // Reset pagination if core query changed
+    if (newQuery !== this.explorerQuery) {
+      this.resetPagination();
     }
 
     console.log(this.queryNode);
