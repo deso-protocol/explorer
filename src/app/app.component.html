@@ -6,7 +6,7 @@
     Enter a DeSo transaction ID, public key, block hash, or block height.
   </div>
   <div style="margin-top: .5rem;">
-    <input (keypress)="searchEnterPressed($event)" [(ngModel)]="searchBar" placeholder="Block hash, transaction ID, public key, or block height..."
+    <input (keypress)="searchEnterPressed($event)" [(ngModel)]="explorerQuery" placeholder="Block hash, transaction ID, public key, or block height..."
            type="text" value="" name="" id="" style="width: 40rem; margin-left: 0rem; max-width: 55vw;"/>
     <div (click)="searchButtonPressed();" class="btn btn-light little-button" style="text-decoration: none; margin-left: .5rem;">
       <div class="divtext">

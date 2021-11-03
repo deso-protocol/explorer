@@ -17,8 +17,8 @@ export class AppComponent implements OnInit {
   ) {
   }
 
-  searchBar = '';
   explorerQuery = '';
+  prevQuery = '';
   explorerResponse = null;
   queryNode = '';
   errorStr = ('Please enter a valid DeSo public key, transaction ID, block ' +
@@ -84,19 +84,19 @@ export class AppComponent implements OnInit {
     }
 
     // Reset pagination if core query changed
-    if (newQuery !== this.explorerQuery) {
+    if (this.prevQuery !== newQuery) {
       console.log('Resetting pagination')
       this.resetPagination();
     }
 
     console.log(this.queryNode);
     console.log(this.explorerQuery);
-    console.log(newQuery);
+    console.log(this.prevQuery);
 
     this.explorerQuery = newQuery;
-    this.searchBar = newQuery;
+    this.prevQuery = newQuery;
 
-    this.submitQuery();
+    this.submitQuery(newQuery);
   }
 
   searchButtonPressed(): void {
@@ -224,10 +224,10 @@ export class AppComponent implements OnInit {
     this.txnsLoading = false;
   }
 
-  submitQuery(): void {
+  submitQuery(query: string): void {
     console.log('Submitting query');
 
-    if (this.explorerQuery == null || this.explorerQuery === '') {
+    if (query == null || query === '') {
       console.error(this.errorStr)
       alert(this.errorStr);
       return;
@@ -248,22 +248,22 @@ export class AppComponent implements OnInit {
     this.txnRes = null;
     this.txnsLoading = true;
 
-    if (this.explorerQuery === 'tip') {
+    if (query === 'tip') {
       this.httpClient.get<any>(
         `${this.queryNode}/api/v1`, { withCredentials: true }
       ).subscribe((res) => this.responseHandler(this, res), (err) => this.errorHandler(this, err));
-    } else if (this.explorerQuery.startsWith('BC') || this.explorerQuery.startsWith('tBC')) {
+    } else if (query.startsWith('BC') || query.startsWith('tBC')) {
       // If the string starts with "BC" we treat it as a public key query.
       this.httpClient.post<any>(
         `${this.queryNode}/api/v1/transaction-info`, {
-          PublicKeyBase58Check: this.explorerQuery,
+          PublicKeyBase58Check: query,
           LastTransactionIDBase58Check: this.LastTransactionIDBase58Check,
           LastPublicKeyTransactionIndex: this.LastPublicKeyTransactionIndex,
           Limit: this.PAGE_SIZE,
         }, { withCredentials: true }
         ).subscribe((res) => this.responseHandler(this, res), (err) => this.errorHandler(this, err));
 
-    } else if (this.explorerQuery === 'mempool') {
+    } else if (query === 'mempool') {
       this.httpClient.post<any>(
       `${this.queryNode}/api/v1/transaction-info`, {
           IsMempool: true,
@@ -271,28 +271,28 @@ export class AppComponent implements OnInit {
           Limit: this.PAGE_SIZE,
       }, { withCredentials: true }
       ).subscribe((res) => this.responseHandler(this, res), (err) => this.errorHandler(this, err));
-    } else if (this.explorerQuery.startsWith('0')) {
+    } else if (query.startsWith('0')) {
       // If it starts with a 0, we know we're dealing with a block hash.
       this.httpClient.post<any>(
         `${this.queryNode}/api/v1/block`, {
-        HashHex: this.explorerQuery,
+        HashHex: query,
         FullBlock: true,
       }, { withCredentials: true }
       ).subscribe((res) => this.responseHandler(this, res), (err) => this.errorHandler(this, err));
 
-    } else if (this.explorerQuery.startsWith('3Ju') || this.explorerQuery.startsWith('CbU') || this.explorerQuery.length === 64) {
+    } else if (query.startsWith('3Ju') || query.startsWith('CbU') || query.length === 64) {
       // If the string starts with 3Ju/CbU/or 64 chars (hex rosetta version) we treat it as a transaction ID.
       this.httpClient.post<any>(
       `${this.queryNode}/api/v1/transaction-info`, {
-        TransactionIDBase58Check: this.explorerQuery,
+        TransactionIDBase58Check: query,
       }, { withCredentials: true }
       ).subscribe((res) => this.responseHandler(this, res), (err) => this.errorHandler(this, err));
 
-    } else if (parseInt(this.explorerQuery, 10) != null && !isNaN(parseInt(this.explorerQuery, 10))) {
+    } else if (parseInt(query, 10) != null && !isNaN(parseInt(query, 10))) {
       // As a last attempt, if the query can be parsed as a block height, then do that.
       this.httpClient.post<any>(
       `${this.queryNode}/api/v1/block`, {
-        Height: parseInt(this.explorerQuery, 10),
+        Height: parseInt(query, 10),
         FullBlock: true,
       }, { withCredentials: true }
       ).subscribe((res) => this.responseHandler(this, res), (err) => this.errorHandler(this, err));
