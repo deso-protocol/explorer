@@ -86,11 +86,13 @@ export class AppComponent implements OnInit {
 
     // Reset pagination if core query changed
     if (newQuery !== this.explorerQuery) {
+      console.log('Resetting pagination')
       this.resetPagination();
     }
 
     console.log(this.queryNode);
     console.log(this.explorerQuery);
+    console.log(newQuery);
 
     this.submitQuery();
   }
