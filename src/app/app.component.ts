@@ -18,7 +18,6 @@ export class AppComponent implements OnInit {
   }
 
   explorerQuery = '';
-  prevQuery = '';
   explorerResponse = null;
   queryNode = '';
   errorStr = ('Please enter a valid DeSo public key, transaction ID, block ' +
@@ -83,22 +82,16 @@ export class AppComponent implements OnInit {
       this.CURRENT_PAGE = Number(params['page']);
     }
 
-    // Reset pagination if core query changed
-    if (this.prevQuery !== newQuery) {
-      console.log('Resetting pagination')
-      this.resetPagination();
-    }
-
     console.log(this.queryNode);
     console.log(this.explorerQuery);
 
     this.explorerQuery = newQuery;
-    this.prevQuery = newQuery;
 
     this.submitQuery(newQuery);
   }
 
   searchButtonPressed(): void {
+    this.resetPagination();
     this.relocateForQuery();
   }
 
@@ -107,6 +100,7 @@ export class AppComponent implements OnInit {
       return;
     }
 
+    this.resetPagination();
     this.relocateForQuery();
   }
 
@@ -308,7 +302,8 @@ export class AppComponent implements OnInit {
   }
 
   showNextPageBtn(): boolean {
-    return (this.txnRes && this.txnRes.Transactions && this.txnRes.Transactions.length >= this.PAGE_SIZE);
+    // We have a response with transactions that is at least a full page and is not a block (has a header)
+    return (this.txnRes && this.txnRes.Transactions && this.txnRes.Transactions.length >= this.PAGE_SIZE && !this.txnRes.Header);
   }
 
   nextPage(): void {
