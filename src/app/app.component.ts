@@ -70,8 +70,6 @@ export class AppComponent implements OnInit {
       newQuery = 'tip';
     }
 
-    this.explorerQuery = newQuery;
-
     if (params['last-txn-idx'] != null) {
       this.LastPublicKeyTransactionIndex = Number(params['last-txn-idx']);
     }
@@ -89,6 +87,8 @@ export class AppComponent implements OnInit {
       console.log('Resetting pagination')
       this.resetPagination();
     }
+
+    this.explorerQuery = newQuery;
 
     console.log(this.queryNode);
     console.log(this.explorerQuery);
