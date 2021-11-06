@@ -25,7 +25,7 @@
     </div>
   </div>
   <div style="margin-top: .5rem;">
-Learn more about DeSo at <a href="https://deso.org" target="_blank">deso.org</a>.
+    Learn more about DeSo at <a href="https://deso.org" target="_blank">deso.org</a>.
   </div>
 
   <div *ngIf="blockRes != null" style="padding-top: 1rem;">
@@ -38,23 +38,19 @@ Learn more about DeSo at <a href="https://deso.org" target="_blank">deso.org</a>
     <div style="padding-left: 2rem; padding-top: 1rem;">
       <div>
         <span style="width: 15rem; display: inline-block;">Block Hash:</span>
-        <a [routerLink]="['/']"
-           [queryParams]="{ 'block-hash': blockRes.Header.BlockHashHex, 'query-node': queryNode }">{{blockRes.Header.BlockHashHex}}</a>
-
+        <a (click)="linkClicked(blockRes.Header.BlockHashHex)">{{blockRes.Header.BlockHashHex}}</a>
       </div>
       <div>
         <span style="width: 15rem; display: inline-block;">Timestamp:</span>{{blockRes.Header.DateTime}}
       </div>
       <div>
         <span style="width: 15rem; display: inline-block;">Height:</span>
-        <a [routerLink]="['/']"
-           [queryParams]="{ 'block-height': blockRes.Header.Height , 'query-node': queryNode }"
+        <a (click)="linkClicked(blockRes.Header.Height)"
         >{{blockRes.Header.Height}}</a>
       </div>
       <div>
         <span style="width: 15rem; display: inline-block;">Previous Block Hash:</span>
-        <a [routerLink]="['/']"
-           [queryParams]="{ 'block-hash': blockRes.Header.PrevBlockHashHex , 'query-node': queryNode }"
+        <a (click)="linkClicked(blockRes.Header.PrevBlockHashHex)"
         >{{blockRes.Header.PrevBlockHashHex}}</a>
       </div>
       <div>
@@ -94,14 +90,13 @@ Learn more about DeSo at <a href="https://deso.org" target="_blank">deso.org</a>
       <div style="padding-left: 2rem;">
         <div>
           <span style="width: 15rem; display: inline-block;">Transaction  ID:</span>
-          <a [routerLink]="['/']"
-             [queryParams]="{ 'transaction-id': thisTxn.TransactionIDBase58Check , 'query-node': queryNode }"
+          <a (click)="linkClicked(thisTxn.TransactionIDBase58Check)"
           >{{thisTxn.TransactionIDBase58Check}}</a>
         </div>
         <div>
           <span style="width: 15rem; display: inline-block;">Block Hash:</span>
-          <a *ngIf="thisTxn.BlockHashHex !== '0000000000000000000000000000000000000000000000000000000000000000'" [routerLink]="['/']"
-             [queryParams]="{ 'block-hash': thisTxn.BlockHashHex , 'query-node': queryNode }"
+          <a *ngIf="thisTxn.BlockHashHex !== '0000000000000000000000000000000000000000000000000000000000000000'"
+             (click)="linkClicked(thisTxn.BlockHashHex)"
           >
             <div style="display: inline;">{{thisTxn.BlockHashHex}}</div>
           </a>
@@ -182,9 +177,7 @@ Learn more about DeSo at <a href="https://deso.org" target="_blank">deso.org</a>
           <div style="padding-left: 2rem;">
             <div>
               <span style="width: 15rem; display: inline-block;">Transaction ID:</span>
-              <a [routerLink]="['/']"
-                 [queryParams]="{ 'transaction-id': txnInput.TransactionIDBase58Check , 'query-node': queryNode }"
-              >{{txnInput.TransactionIDBase58Check}}</a>
+              <a (click)="linkClicked(txnInput.TransactionIDBase58Check)">{{txnInput.TransactionIDBase58Check}}</a>
             </div>
             <div>
               <span style="width: 15rem; display: inline-block;">Index:</span>{{txnInput.Index}}
@@ -201,9 +194,7 @@ Learn more about DeSo at <a href="https://deso.org" target="_blank">deso.org</a>
           <div style="padding-left: 2rem;">
             <div>
               <span style="width: 15rem; display: inline-block;">Public Key:</span>
-              <a [routerLink]="['/']"
-                 [queryParams]="{ 'public-key': txnOutput.PublicKeyBase58Check , 'query-node': queryNode }"
-              >{{txnOutput.PublicKeyBase58Check}}</a>
+              <a (click)="linkClicked(txnOutput.PublicKeyBase58Check)">{{txnOutput.PublicKeyBase58Check}}</a>
             </div>
             <div>
               <span style="width: 15rem; display: inline-block;">DeSo:</span>{{(txnOutput.AmountNanos / 1e9).toFixed(9)}}

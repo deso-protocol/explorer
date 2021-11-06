@@ -104,6 +104,12 @@ export class AppComponent implements OnInit {
     this.relocateForQuery();
   }
 
+  linkClicked(query: string) {
+    this.explorerQuery = query;
+    this.resetPagination();
+    this.relocateForQuery();
+  }
+
   copy(val: string): void {
     const selBox = document.createElement('textarea');
     selBox.style.position = 'fixed';
