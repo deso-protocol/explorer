@@ -104,7 +104,9 @@ export class AppComponent implements OnInit {
     this.relocateForQuery();
   }
 
-  linkClicked(query: string) {
+  linkClicked(event: MouseEvent, query: string) {
+    event.preventDefault();
+
     this.explorerQuery = query;
     this.resetPagination();
     this.relocateForQuery();
