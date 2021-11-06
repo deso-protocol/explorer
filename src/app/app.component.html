@@ -38,19 +38,19 @@
     <div style="padding-left: 2rem; padding-top: 1rem;">
       <div>
         <span style="width: 15rem; display: inline-block;">Block Hash:</span>
-        <a (click)="linkClicked(blockRes.Header.BlockHashHex)">{{blockRes.Header.BlockHashHex}}</a>
+        <a href="" (click)="linkClicked(blockRes.Header.BlockHashHex)">{{blockRes.Header.BlockHashHex}}</a>
       </div>
       <div>
         <span style="width: 15rem; display: inline-block;">Timestamp:</span>{{blockRes.Header.DateTime}}
       </div>
       <div>
         <span style="width: 15rem; display: inline-block;">Height:</span>
-        <a (click)="linkClicked(blockRes.Header.Height)"
+        <a href="" (click)="linkClicked(blockRes.Header.Height)"
         >{{blockRes.Header.Height}}</a>
       </div>
       <div>
         <span style="width: 15rem; display: inline-block;">Previous Block Hash:</span>
-        <a (click)="linkClicked(blockRes.Header.PrevBlockHashHex)"
+        <a href="" (click)="linkClicked(blockRes.Header.PrevBlockHashHex)"
         >{{blockRes.Header.PrevBlockHashHex}}</a>
       </div>
       <div>
@@ -90,12 +90,13 @@
       <div style="padding-left: 2rem;">
         <div>
           <span style="width: 15rem; display: inline-block;">Transaction  ID:</span>
-          <a (click)="linkClicked(thisTxn.TransactionIDBase58Check)"
+          <a href="" (click)="linkClicked(thisTxn.TransactionIDBase58Check)"
           >{{thisTxn.TransactionIDBase58Check}}</a>
         </div>
         <div>
           <span style="width: 15rem; display: inline-block;">Block Hash:</span>
-          <a *ngIf="thisTxn.BlockHashHex !== '0000000000000000000000000000000000000000000000000000000000000000'"
+          <a href=""
+             *ngIf="thisTxn.BlockHashHex !== '0000000000000000000000000000000000000000000000000000000000000000'"
              (click)="linkClicked(thisTxn.BlockHashHex)"
           >
             <div style="display: inline;">{{thisTxn.BlockHashHex}}</div>
@@ -177,7 +178,7 @@
           <div style="padding-left: 2rem;">
             <div>
               <span style="width: 15rem; display: inline-block;">Transaction ID:</span>
-              <a (click)="linkClicked(txnInput.TransactionIDBase58Check)">{{txnInput.TransactionIDBase58Check}}</a>
+              <a href="" (click)="linkClicked(txnInput.TransactionIDBase58Check)">{{txnInput.TransactionIDBase58Check}}</a>
             </div>
             <div>
               <span style="width: 15rem; display: inline-block;">Index:</span>{{txnInput.Index}}
@@ -194,7 +195,7 @@
           <div style="padding-left: 2rem;">
             <div>
               <span style="width: 15rem; display: inline-block;">Public Key:</span>
-              <a (click)="linkClicked(txnOutput.PublicKeyBase58Check)">{{txnOutput.PublicKeyBase58Check}}</a>
+              <a href="" (click)="linkClicked(txnOutput.PublicKeyBase58Check)">{{txnOutput.PublicKeyBase58Check}}</a>
             </div>
             <div>
               <span style="width: 15rem; display: inline-block;">DeSo:</span>{{(txnOutput.AmountNanos / 1e9).toFixed(9)}}
