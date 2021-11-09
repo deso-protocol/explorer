@@ -33,10 +33,10 @@ export class AppComponent implements OnInit {
 
   // Pagination variables
   PAGE_SIZE = 200;
-  CURRENT_PAGE = 1;
-  PAGES: {[k: number]: any} = {};
-  LastTransactionIDBase58Check = '';
-  LastPublicKeyTransactionIndex = -1;
+  currentPage = 1;
+  pageCache: {[k: number]: any} = {};
+  lastTransactionIDBase58Check = '';
+  lastPublicKeyTransactionIndex = -1;
 
   ngOnInit(): void {
     // Debounce because angular fires twice when loading with a param
@@ -71,15 +71,17 @@ export class AppComponent implements OnInit {
     }
 
     if (params['last-txn-idx'] != null) {
-      this.LastPublicKeyTransactionIndex = Number(params['last-txn-idx']);
+      this.lastPublicKeyTransactionIndex = Number(params['last-txn-idx']);
     }
 
     if (params['last-txn-hash'] != null) {
-      this.LastTransactionIDBase58Check = params['last-txn-hash'];
+      this.lastTransactionIDBase58Check = params['last-txn-hash'];
     }
 
     if (params['page'] != null) {
-      this.CURRENT_PAGE = Number(params['page']);
+      this.currentPage = Number(params['page']);
+    } else {
+      this.resetPagination();
     }
 
     console.log(this.queryNode);
@@ -104,14 +106,6 @@ export class AppComponent implements OnInit {
     this.relocateForQuery();
   }
 
-  linkClicked(event: MouseEvent, query: any) {
-    event.preventDefault();
-
-    this.explorerQuery = query.toString();
-    this.resetPagination();
-    this.relocateForQuery();
-  }
-
   copy(val: string): void {
     const selBox = document.createElement('textarea');
     selBox.style.position = 'fixed';
@@ -128,10 +122,10 @@ export class AppComponent implements OnInit {
 
   resetPagination(): void {
     // Reset the pagination
-    this.CURRENT_PAGE = 1;
-    this.PAGES = {};
-    this.LastPublicKeyTransactionIndex = -1;
-    this.LastTransactionIDBase58Check = '';
+    this.currentPage = 1;
+    this.pageCache = {};
+    this.lastPublicKeyTransactionIndex = -1;
+    this.lastTransactionIDBase58Check = '';
   }
 
   relocateForQuery(): void {
@@ -144,15 +138,15 @@ export class AppComponent implements OnInit {
       this.router.navigate(['/'], { queryParams: {
         'query-node': this.queryNode,
         'public-key': this.explorerQuery,
-        'last-txn-idx': this.LastPublicKeyTransactionIndex,
-        'page': this.CURRENT_PAGE,
+        'last-txn-idx': this.lastPublicKeyTransactionIndex,
+        'page': this.currentPage,
       }});
 
     } else if (this.explorerQuery === 'mempool') {
       this.router.navigate(['/'], { queryParams: {
         'query-node': this.queryNode,
-        'last-txn-hash': this.LastTransactionIDBase58Check,
-        'page': this.CURRENT_PAGE,
+        'last-txn-hash': this.lastTransactionIDBase58Check,
+        'page': this.currentPage,
         mempool: true
       }});
 
@@ -204,9 +198,9 @@ export class AppComponent implements OnInit {
         BalanceNanos: res.BalanceNanos,
       };
 
-      this.LastTransactionIDBase58Check = res.LastTransactionIDBase58Check;
-      this.LastPublicKeyTransactionIndex = res.LastPublicKeyTransactionIndex;
-      this.PAGES[this.CURRENT_PAGE] = this.txnRes;
+      this.lastTransactionIDBase58Check = res.LastTransactionIDBase58Check;
+      this.lastPublicKeyTransactionIndex = res.LastPublicKeyTransactionIndex;
+      this.pageCache[this.currentPage] = this.txnRes;
     }
 
     this.ref.detectChanges();
@@ -240,11 +234,11 @@ export class AppComponent implements OnInit {
     }
 
     // Cache paginated results
-    if (this.CURRENT_PAGE in this.PAGES) {
-      console.log('Using cached paginated results for page ' + this.CURRENT_PAGE);
-      this.txnRes = this.PAGES[this.CURRENT_PAGE];
-      this.LastTransactionIDBase58Check = this.txnRes.LastTransactionIDBase58Check;
-      this.LastPublicKeyTransactionIndex = this.txnRes.LastPublicKeyTransactionIndex;
+    if (this.currentPage in this.pageCache) {
+      console.log('Using cached paginated results for page ' + this.currentPage);
+      this.txnRes = this.pageCache[this.currentPage];
+      this.lastTransactionIDBase58Check = this.txnRes.LastTransactionIDBase58Check;
+      this.lastPublicKeyTransactionIndex = this.txnRes.LastPublicKeyTransactionIndex;
       return
     }
 
@@ -263,8 +257,8 @@ export class AppComponent implements OnInit {
       this.httpClient.post<any>(
         `${this.queryNode}/api/v1/transaction-info`, {
           PublicKeyBase58Check: query,
-          LastTransactionIDBase58Check: this.LastTransactionIDBase58Check,
-          LastPublicKeyTransactionIndex: this.LastPublicKeyTransactionIndex,
+          LastTransactionIDBase58Check: this.lastTransactionIDBase58Check,
+          LastPublicKeyTransactionIndex: this.lastPublicKeyTransactionIndex,
           Limit: this.PAGE_SIZE,
         }, { withCredentials: true }
         ).subscribe((res) => this.responseHandler(this, res), (err) => this.errorHandler(this, err));
@@ -273,7 +267,7 @@ export class AppComponent implements OnInit {
       this.httpClient.post<any>(
       `${this.queryNode}/api/v1/transaction-info`, {
           IsMempool: true,
-          LastTransactionIDBase58Check: this.LastTransactionIDBase58Check,
+          LastTransactionIDBase58Check: this.lastTransactionIDBase58Check,
           Limit: this.PAGE_SIZE,
       }, { withCredentials: true }
       ).subscribe((res) => this.responseHandler(this, res), (err) => this.errorHandler(this, err));
@@ -317,10 +311,10 @@ export class AppComponent implements OnInit {
       // That is at least PAGE_SIZE
       this.txnRes.Transactions.length >= this.PAGE_SIZE &&
       // That is not a block
-      !this.txnRes.Header
+      !this.blockRes
     ) || (
       // OR we are loading transactions and on 2+ page
-      this.txnsLoading && this.CURRENT_PAGE >= 2
+      this.txnsLoading && this.currentPage >= 2
     );
   }
 
@@ -329,7 +323,7 @@ export class AppComponent implements OnInit {
       return;
     }
 
-    this.CURRENT_PAGE += 1;
+    this.currentPage += 1;
     this.relocateForQuery();
   }
 
@@ -338,7 +332,7 @@ export class AppComponent implements OnInit {
       return;
     }
 
-    this.CURRENT_PAGE -= 1;
+    this.currentPage -= 1;
     this.relocateForQuery();
   }
 }

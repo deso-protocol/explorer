@@ -13,7 +13,7 @@
         Search
       </div>
     </div>
-    <div *ngIf="CURRENT_PAGE > 1" (click)="prevPage()" class="btn btn-light little-button" style="text-decoration: none; margin-left: .5rem;">
+    <div *ngIf="currentPage > 1" (click)="prevPage()" class="btn btn-light little-button" style="text-decoration: none; margin-left: .5rem;">
       <div class="divtext">
         Previous Page
       </div>
@@ -25,7 +25,7 @@
     </div>
   </div>
   <div style="margin-top: .5rem;">
-    Learn more about DeSo at <a href="https://deso.org" target="_blank">deso.org</a>.
+Learn more about DeSo at <a href="https://deso.org" target="_blank">deso.org</a>.
   </div>
 
   <div *ngIf="blockRes != null" style="padding-top: 1rem;">
@@ -38,19 +38,23 @@
     <div style="padding-left: 2rem; padding-top: 1rem;">
       <div>
         <span style="width: 15rem; display: inline-block;">Block Hash:</span>
-        <a href="" (click)="linkClicked($event, blockRes.Header.BlockHashHex)">{{blockRes.Header.BlockHashHex}}</a>
+        <a [routerLink]="['/']"
+           [queryParams]="{ 'block-hash': blockRes.Header.BlockHashHex, 'query-node': queryNode }">{{blockRes.Header.BlockHashHex}}</a>
+
       </div>
       <div>
         <span style="width: 15rem; display: inline-block;">Timestamp:</span>{{blockRes.Header.DateTime}}
       </div>
       <div>
         <span style="width: 15rem; display: inline-block;">Height:</span>
-        <a href="" (click)="linkClicked($event, blockRes.Header.Height)"
+        <a [routerLink]="['/']"
+           [queryParams]="{ 'block-height': blockRes.Header.Height , 'query-node': queryNode }"
         >{{blockRes.Header.Height}}</a>
       </div>
       <div>
         <span style="width: 15rem; display: inline-block;">Previous Block Hash:</span>
-        <a href="" (click)="linkClicked($event, blockRes.Header.PrevBlockHashHex)"
+        <a [routerLink]="['/']"
+           [queryParams]="{ 'block-hash': blockRes.Header.PrevBlockHashHex , 'query-node': queryNode }"
         >{{blockRes.Header.PrevBlockHashHex}}</a>
       </div>
       <div>
@@ -84,20 +88,20 @@
     </div>
     <div *ngFor="let thisTxn of txnRes.Transactions; index as txnIndex" style="padding-top: 1rem;">
       <div>
-        <span>Transaction #{{txnIndex + (CURRENT_PAGE - 1)*PAGE_SIZE}}</span>
-        <span *ngIf="txnIndex === 0 && CURRENT_PAGE === 1"> (latest)</span>:
+        <span>Transaction #{{txnIndex + (currentPage - 1)*PAGE_SIZE}}</span>
+        <span *ngIf="txnIndex === 0 && currentPage === 1"> (latest)</span>:
       </div>
       <div style="padding-left: 2rem;">
         <div>
           <span style="width: 15rem; display: inline-block;">Transaction  ID:</span>
-          <a href="" (click)="linkClicked($event, thisTxn.TransactionIDBase58Check)"
+          <a [routerLink]="['/']"
+             [queryParams]="{ 'transaction-id': thisTxn.TransactionIDBase58Check , 'query-node': queryNode }"
           >{{thisTxn.TransactionIDBase58Check}}</a>
         </div>
         <div>
           <span style="width: 15rem; display: inline-block;">Block Hash:</span>
-          <a href=""
-             *ngIf="thisTxn.BlockHashHex !== '0000000000000000000000000000000000000000000000000000000000000000'"
-             (click)="linkClicked($event, thisTxn.BlockHashHex)"
+          <a *ngIf="thisTxn.BlockHashHex !== '0000000000000000000000000000000000000000000000000000000000000000'" [routerLink]="['/']"
+             [queryParams]="{ 'block-hash': thisTxn.BlockHashHex , 'query-node': queryNode }"
           >
             <div style="display: inline;">{{thisTxn.BlockHashHex}}</div>
           </a>
@@ -178,7 +182,9 @@
           <div style="padding-left: 2rem;">
             <div>
               <span style="width: 15rem; display: inline-block;">Transaction ID:</span>
-              <a href="" (click)="linkClicked($event, txnInput.TransactionIDBase58Check)">{{txnInput.TransactionIDBase58Check}}</a>
+              <a [routerLink]="['/']"
+                 [queryParams]="{ 'transaction-id': txnInput.TransactionIDBase58Check , 'query-node': queryNode }"
+              >{{txnInput.TransactionIDBase58Check}}</a>
             </div>
             <div>
               <span style="width: 15rem; display: inline-block;">Index:</span>{{txnInput.Index}}
@@ -195,7 +201,9 @@
           <div style="padding-left: 2rem;">
             <div>
               <span style="width: 15rem; display: inline-block;">Public Key:</span>
-              <a href="" (click)="linkClicked($event, txnOutput.PublicKeyBase58Check)">{{txnOutput.PublicKeyBase58Check}}</a>
+              <a [routerLink]="['/']"
+                 [queryParams]="{ 'public-key': txnOutput.PublicKeyBase58Check , 'query-node': queryNode }"
+              >{{txnOutput.PublicKeyBase58Check}}</a>
             </div>
             <div>
               <span style="width: 15rem; display: inline-block;">DeSo:</span>{{(txnOutput.AmountNanos / 1e9).toFixed(9)}}
