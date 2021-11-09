@@ -311,7 +311,7 @@ export class AppComponent implements OnInit {
       // That is at least PAGE_SIZE
       this.txnRes.Transactions.length >= this.PAGE_SIZE &&
       // That is not a block
-      !this.txnRes.Header
+      !this.blockRes
     ) || (
       // OR we are loading transactions and on 2+ page
       this.txnsLoading && this.currentPage >= 2
