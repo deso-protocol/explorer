@@ -188,9 +188,6 @@ export class AppComponent implements OnInit {
         }
       }
 
-      // Reverse the list so newest transactions are at the top of the page
-      res.Transactions.reverse();
-
       this.txnRes = {
         Transactions: res.Transactions,
         LastTransactionIDBase58Check: res.LastTransactionIDBase58Check,
