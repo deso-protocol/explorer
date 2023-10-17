@@ -36,26 +36,41 @@ Learn more about DeSo at <a href="https://deso.org" target="_blank">deso.org</a>
       Current Block Tip
     </div>
     <div style="padding-left: 2rem; padding-top: 1rem;">
-      <div>
+      <div class="d-flex my-2">
         <span style="width: 15rem; display: inline-block;">Block Hash:</span>
-        <a [routerLink]="['/']"
-           [queryParams]="{ 'block-hash': blockRes.Header.BlockHashHex, 'query-node': queryNode }">{{blockRes.Header.BlockHashHex}}</a>
 
+        <div>
+          <a [routerLink]="['/']"
+             [queryParams]="{ 'block-hash': blockRes.Header.BlockHashHex, 'query-node': queryNode }">{{blockRes.Header.BlockHashHex}}</a>
+
+          <app-external-explorer-link [path]="'blocks/' + blockRes.Header.BlockHashHex"></app-external-explorer-link>
+        </div>
       </div>
       <div>
         <span style="width: 15rem; display: inline-block;">Timestamp:</span>{{blockRes.Header.DateTime}}
       </div>
-      <div>
+      <div class="d-flex my-2">
         <span style="width: 15rem; display: inline-block;">Height:</span>
-        <a [routerLink]="['/']"
-           [queryParams]="{ 'block-height': blockRes.Header.Height , 'query-node': queryNode }"
-        >{{blockRes.Header.Height}}</a>
+
+        <div>
+          <a [routerLink]="['/']"
+             [queryParams]="{ 'block-height': blockRes.Header.Height , 'query-node': queryNode }"
+          >{{blockRes.Header.Height}}</a>
+
+          <app-external-explorer-link [path]="'blocks/' + blockRes.Header.Height"></app-external-explorer-link>
+        </div>
       </div>
-      <div>
+
+      <div class="d-flex my-2">
         <span style="width: 15rem; display: inline-block;">Previous Block Hash:</span>
-        <a [routerLink]="['/']"
-           [queryParams]="{ 'block-hash': blockRes.Header.PrevBlockHashHex , 'query-node': queryNode }"
-        >{{blockRes.Header.PrevBlockHashHex}}</a>
+
+        <div>
+          <a [routerLink]="['/']"
+             [queryParams]="{ 'block-hash': blockRes.Header.PrevBlockHashHex , 'query-node': queryNode }"
+          >{{blockRes.Header.PrevBlockHashHex}}</a>
+
+          <app-external-explorer-link [path]="'blocks/' + blockRes.Header.PrevBlockHashHex"></app-external-explorer-link>
+        </div>
       </div>
       <div>
         <span style="width: 15rem; display: inline-block;">Transaction Merkle Root:</span>{{blockRes.Header.TransactionMerkleRootHex}}
@@ -92,20 +107,31 @@ Learn more about DeSo at <a href="https://deso.org" target="_blank">deso.org</a>
         <span *ngIf="txnIndex === 0 && currentPage === 1"> (latest)</span>:
       </div>
       <div style="padding-left: 2rem;">
-        <div>
+        <div class="d-flex my-2">
           <span style="width: 15rem; display: inline-block;">Transaction  ID:</span>
-          <a [routerLink]="['/']"
-             [queryParams]="{ 'transaction-id': thisTxn.TransactionIDBase58Check , 'query-node': queryNode }"
-          >{{thisTxn.TransactionIDBase58Check}}</a>
+
+          <div>
+            <a [routerLink]="['/']"
+               [queryParams]="{ 'transaction-id': thisTxn.TransactionIDBase58Check , 'query-node': queryNode }"
+            >{{thisTxn.TransactionIDBase58Check}}</a>
+
+            <app-external-explorer-link [path]="'txn/' + thisTxn.TransactionIDBase58Check"></app-external-explorer-link>
+          </div>
         </div>
-        <div>
+
+        <div class="d-flex my-2">
           <span style="width: 15rem; display: inline-block;">Block Hash:</span>
-          <a *ngIf="thisTxn.BlockHashHex !== '0000000000000000000000000000000000000000000000000000000000000000'" [routerLink]="['/']"
-             [queryParams]="{ 'block-hash': thisTxn.BlockHashHex , 'query-node': queryNode }"
-          >
-            <div style="display: inline;">{{thisTxn.BlockHashHex}}</div>
-          </a>
-          <div *ngIf="thisTxn.BlockHashHex === '0000000000000000000000000000000000000000000000000000000000000000'" style="display: inline; color: #ab1414;">UNCONFIRMED</div>
+
+          <div>
+            <a *ngIf="thisTxn.BlockHashHex !== '0000000000000000000000000000000000000000000000000000000000000000'" [routerLink]="['/']"
+               [queryParams]="{ 'block-hash': thisTxn.BlockHashHex , 'query-node': queryNode }"
+            >
+              <div style="display: inline;">{{thisTxn.BlockHashHex}}</div>
+            </a>
+            <div *ngIf="thisTxn.BlockHashHex === '0000000000000000000000000000000000000000000000000000000000000000'" style="display: inline; color: #ab1414;">UNCONFIRMED</div>
+
+            <app-external-explorer-link [path]="'blocks/' + thisTxn.BlockHashHex"></app-external-explorer-link>
+          </div>
         </div>
         <div>
           <span style="width: 15rem; display: inline-block;">Transaction Type:</span>{{thisTxn.TransactionType}}
@@ -180,11 +206,16 @@ Learn more about DeSo at <a href="https://deso.org" target="_blank">deso.org</a>
             Input #{{inputIndex}}
           </div>
           <div style="padding-left: 2rem;">
-            <div>
+            <div class="d-flex my-4">
               <span style="width: 15rem; display: inline-block;">Transaction ID:</span>
-              <a [routerLink]="['/']"
-                 [queryParams]="{ 'transaction-id': txnInput.TransactionIDBase58Check , 'query-node': queryNode }"
-              >{{txnInput.TransactionIDBase58Check}}</a>
+
+              <div>
+                <a [routerLink]="['/']"
+                   [queryParams]="{ 'transaction-id': txnInput.TransactionIDBase58Check , 'query-node': queryNode }"
+                >{{txnInput.TransactionIDBase58Check}}</a>
+
+                <app-external-explorer-link [path]="'txn/' + txnInput.TransactionIDBase58Check"></app-external-explorer-link>
+              </div>
             </div>
             <div>
               <span style="width: 15rem; display: inline-block;">Index:</span>{{txnInput.Index}}
@@ -199,11 +230,15 @@ Learn more about DeSo at <a href="https://deso.org" target="_blank">deso.org</a>
             Output #{{outputIndex}}
           </div>
           <div style="padding-left: 2rem;">
-            <div>
+            <div class="d-flex my-2">
               <span style="width: 15rem; display: inline-block;">Public Key:</span>
-              <a [routerLink]="['/']"
-                 [queryParams]="{ 'public-key': txnOutput.PublicKeyBase58Check , 'query-node': queryNode }"
-              >{{txnOutput.PublicKeyBase58Check}}</a>
+              <div>
+                <a [routerLink]="['/']"
+                   [queryParams]="{ 'public-key': txnOutput.PublicKeyBase58Check , 'query-node': queryNode }"
+                >{{txnOutput.PublicKeyBase58Check}}</a>
+
+                <app-external-explorer-link [path]="'u/' + txnOutput.PublicKeyBase58Check"></app-external-explorer-link>
+              </div>
             </div>
             <div>
               <span style="width: 15rem; display: inline-block;">DeSo:</span>{{(txnOutput.AmountNanos / 1e9).toFixed(9)}}
