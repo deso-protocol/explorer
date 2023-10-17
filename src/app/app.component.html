@@ -1,259 +1,296 @@
-<div class="explorer-container">
-  <div class="welcome-top">
-    Welcome to the DeSo Block Explorer
+<div>
+  <div class="w-100 welcome-top mt-0 px-10" style="background-color: #ffda59">
+    Click <a href="https://explorer.deso.com">here</a> to try the new block explorer!
   </div>
-  <div class="welcome">
-    Enter a DeSo transaction ID, public key, block hash, or block height.
-  </div>
-  <div style="margin-top: .5rem;">
-    <input (keypress)="searchEnterPressed($event)" [(ngModel)]="explorerQuery" placeholder="Block hash, transaction ID, public key, or block height..."
-           type="text" value="" name="" id="" style="width: 40rem; margin-left: 0rem; max-width: 55vw;"/>
-    <div (click)="searchButtonPressed();" class="btn btn-light little-button" style="text-decoration: none; margin-left: .5rem;">
-      <div class="divtext">
-        Search
-      </div>
+  <div class="explorer-container">
+    <div class="welcome-top">
+      Welcome to the DeSo Block Explorer
     </div>
-    <div *ngIf="currentPage > 1" (click)="prevPage()" class="btn btn-light little-button" style="text-decoration: none; margin-left: .5rem;">
-      <div class="divtext">
-        Previous Page
-      </div>
+    <div class="welcome">
+      Enter a DeSo transaction ID, public key, block hash, or block height.
     </div>
-    <div *ngIf="showNextPageBtn()" (click)="nextPage()" class="btn btn-light little-button" style="text-decoration: none; margin-left: .5rem;">
-      <div class="divtext">
-        Next Page
-      </div>
-    </div>
-  </div>
-  <div style="margin-top: .5rem;">
-Learn more about DeSo at <a href="https://deso.org" target="_blank">deso.org</a>.
-  </div>
-
-  <div *ngIf="blockRes != null" style="padding-top: 1rem;">
-    <div class="welcome" *ngIf="hasParam">
-      Block Information
-    </div>
-    <div class="welcome" *ngIf="!hasParam">
-      Current Block Tip
-    </div>
-    <div style="padding-left: 2rem; padding-top: 1rem;">
-      <div class="d-flex my-2">
-        <span style="width: 15rem; display: inline-block;">Block Hash:</span>
-
-        <div>
-          <a [routerLink]="['/']"
-             [queryParams]="{ 'block-hash': blockRes.Header.BlockHashHex, 'query-node': queryNode }">{{blockRes.Header.BlockHashHex}}</a>
-
-          <app-external-explorer-link [path]="'blocks/' + blockRes.Header.BlockHashHex"></app-external-explorer-link>
+    <div style="margin-top: .5rem;">
+      <input (keypress)="searchEnterPressed($event)" [(ngModel)]="explorerQuery"
+             placeholder="Block hash, transaction ID, public key, or block height..."
+             type="text" value="" name="" id="" style="width: 40rem; margin-left: 0rem; max-width: 55vw;"/>
+      <div (click)="searchButtonPressed();" class="btn btn-light little-button"
+           style="text-decoration: none; margin-left: .5rem;">
+        <div class="divtext">
+          Search
         </div>
       </div>
-      <div>
-        <span style="width: 15rem; display: inline-block;">Timestamp:</span>{{blockRes.Header.DateTime}}
-      </div>
-      <div class="d-flex my-2">
-        <span style="width: 15rem; display: inline-block;">Height:</span>
-
-        <div>
-          <a [routerLink]="['/']"
-             [queryParams]="{ 'block-height': blockRes.Header.Height , 'query-node': queryNode }"
-          >{{blockRes.Header.Height}}</a>
-
-          <app-external-explorer-link [path]="'blocks/' + blockRes.Header.Height"></app-external-explorer-link>
+      <div *ngIf="currentPage > 1" (click)="prevPage()" class="btn btn-light little-button"
+           style="text-decoration: none; margin-left: .5rem;">
+        <div class="divtext">
+          Previous Page
         </div>
       </div>
-
-      <div class="d-flex my-2">
-        <span style="width: 15rem; display: inline-block;">Previous Block Hash:</span>
-
-        <div>
-          <a [routerLink]="['/']"
-             [queryParams]="{ 'block-hash': blockRes.Header.PrevBlockHashHex , 'query-node': queryNode }"
-          >{{blockRes.Header.PrevBlockHashHex}}</a>
-
-          <app-external-explorer-link [path]="'blocks/' + blockRes.Header.PrevBlockHashHex"></app-external-explorer-link>
+      <div *ngIf="showNextPageBtn()" (click)="nextPage()" class="btn btn-light little-button"
+           style="text-decoration: none; margin-left: .5rem;">
+        <div class="divtext">
+          Next Page
         </div>
       </div>
-      <div>
-        <span style="width: 15rem; display: inline-block;">Transaction Merkle Root:</span>{{blockRes.Header.TransactionMerkleRootHex}}
-      </div>
-      <div>
-        <span style="width: 15rem; display: inline-block;">Nonce:</span>{{blockRes.Header.Nonce}}
-      </div>
-      <div>
-        <span style="width: 15rem; display: inline-block;">Version:</span>{{blockRes.Header.Version}}
-      </div>
+    </div>
+    <div style="margin-top: .5rem" *ngIf="getExplorerPathBasedOnQuery()">
+      <app-external-explorer-link [path]="getExplorerPathBasedOnQuery()"></app-external-explorer-link>
+    </div>
+    <div style="margin-top: .5rem;">
+      Learn more about DeSo at <a href="https://deso.org" target="_blank">deso.org</a>.
     </div>
 
-  </div>
-  <div *ngIf="txnRes != null">
-    <div style="padding-top: 1rem;" class="welcome" *ngIf="blockRes != null">
-      Block Transactions
-    </div>
-    <div *ngIf="txnRes.BalanceNanos">
-      <div style="padding-top: 1rem;" class="welcome">
-        Final Balance (Including Unconfirmed Transactions)
+    <div *ngIf="blockRes != null" style="padding-top: 1rem;">
+      <div class="welcome" *ngIf="hasParam">
+        Block Information
       </div>
-      <h4 style="padding-top: 1rem;">
-        <b>
-          {{(txnRes.BalanceNanos / 1e9).toLocaleString('en-US', {minimumFractionDigits: 9})}}
-        </b>
-      </h4>
-    </div>
-    <div style="padding-top: 1rem;" class="welcome" *ngIf="blockRes == null">
-      Transactions Found
-    </div>
-    <div *ngFor="let thisTxn of txnRes.Transactions; index as txnIndex" style="padding-top: 1rem;">
-      <div>
-        <span>Transaction #{{txnIndex + (currentPage - 1)*PAGE_SIZE}}</span>
-        <span *ngIf="txnIndex === 0 && currentPage === 1"> (latest)</span>:
+      <div class="welcome" *ngIf="!hasParam">
+        Current Block Tip
       </div>
-      <div style="padding-left: 2rem;">
-        <div class="d-flex my-2">
-          <span style="width: 15rem; display: inline-block;">Transaction  ID:</span>
-
-          <div>
-            <a [routerLink]="['/']"
-               [queryParams]="{ 'transaction-id': thisTxn.TransactionIDBase58Check , 'query-node': queryNode }"
-            >{{thisTxn.TransactionIDBase58Check}}</a>
-
-            <app-external-explorer-link [path]="'txn/' + thisTxn.TransactionIDBase58Check"></app-external-explorer-link>
-          </div>
-        </div>
-
+      <div style="padding-left: 2rem; padding-top: 1rem;">
         <div class="d-flex my-2">
           <span style="width: 15rem; display: inline-block;">Block Hash:</span>
 
           <div>
-            <a *ngIf="thisTxn.BlockHashHex !== '0000000000000000000000000000000000000000000000000000000000000000'" [routerLink]="['/']"
-               [queryParams]="{ 'block-hash': thisTxn.BlockHashHex , 'query-node': queryNode }"
-            >
-              <div style="display: inline;">{{thisTxn.BlockHashHex}}</div>
-            </a>
-            <div *ngIf="thisTxn.BlockHashHex === '0000000000000000000000000000000000000000000000000000000000000000'" style="display: inline; color: #ab1414;">UNCONFIRMED</div>
+            <a [routerLink]="['/']"
+               [queryParams]="{ 'block-hash': blockRes.Header.BlockHashHex, 'query-node': queryNode }">{{blockRes.Header.BlockHashHex}}</a>
 
-            <app-external-explorer-link [path]="'blocks/' + thisTxn.BlockHashHex"></app-external-explorer-link>
+            <app-external-explorer-link [path]="'blocks/' + blockRes.Header.BlockHashHex"></app-external-explorer-link>
           </div>
         </div>
         <div>
-          <span style="width: 15rem; display: inline-block;">Transaction Type:</span>{{thisTxn.TransactionType}}
+          <span style="width: 15rem; display: inline-block;">Timestamp:</span>{{blockRes.Header.DateTime}}
         </div>
-        <div *ngIf="thisTxn.TransactionType === 'BITCOIN_EXCHANGE' && thisTxn.BlockHashHex === '0000000000000000000000000000000000000000000000000000000000000000'" style="display: flex;">
-          <div style="width: 15rem; display: inline-block;">
-            Imporant:
-          </div>
-          <div style="color: #ab1414; display: inline-block; max-width: 20rem;">
-            This transaction type can take up to 24 hours to confirm. This is normal, and is due to the fact that
-            we have to wait for enough "work" to build on the Bitcoin blockchain before accepting it.
-          </div>
-        </div>
-        <div>
-          <span style="width: 15rem; display: inline-block; vertical-align: top;">Transaction Metadata:</span>
-          <div style="display: inline-block;">
-            <div *ngIf="thisTxn.TransactionMetadata">
-              <h3>Parsed Fields</h3>
-              <div>
-                Total Input: {{(thisTxn.TransactionMetadata.BasicTransferTxindexMetadata.TotalInputNanos / 1e9).toFixed(9)}}
-              </div>
-              <div>
-                Total Output: {{(thisTxn.TransactionMetadata.BasicTransferTxindexMetadata.TotalOutputNanos / 1e9).toFixed(9)}}
-              </div>
-              <div>
-                Fees: {{(thisTxn.TransactionMetadata.BasicTransferTxindexMetadata.FeeNanos / 1e9).toFixed(9)}}
-              </div>
+        <div class="d-flex my-2">
+          <span style="width: 15rem; display: inline-block;">Height:</span>
 
-              <div *ngIf="thisTxn.TransactionMetadata.BitcoinExchangeTxindexMetadata">
-                <div>
-                  Bitcoin Burned: {{(thisTxn.TransactionMetadata.BitcoinExchangeTxindexMetadata.SatoshisBurned / 1e8).toFixed(8)}}
-                </div>
-                <div>
-                  DeSo Created: {{(thisTxn.TransactionMetadata.BitcoinExchangeTxindexMetadata.NanosCreated / 1e9).toFixed(9)}}
-                </div>
-                <div>
-                  Total DeSo Purchased Before: {{(thisTxn.TransactionMetadata.BitcoinExchangeTxindexMetadata.TotalNanosPurchasedBefore / 1e9).toFixed(9)}}
-                </div>
-                <div>
-                  Total DeSo Purchased After: {{(thisTxn.TransactionMetadata.BitcoinExchangeTxindexMetadata.TotalNanosPurchasedAfter / 1e9).toFixed(9)}}
-                </div>
-                <div>
-                  Bitcoin Transaction ID: <a href="https://www.blockchain.com/btc/tx/{{thisTxn.TransactionMetadata.BitcoinExchangeTxindexMetadata.BitcoinTxnHash}}" target="_blank">
-                  {{thisTxn.TransactionMetadata.BitcoinExchangeTxindexMetadata.BitcoinTxnHash}}
-                </a>
-                </div>
-              </div>
-
-              <h3 class="mt-3">Raw Metadata</h3>
-              <pre>{{thisTxn.TransactionMetadata | json}}</pre>
-            </div>
-            <div *ngIf="!thisTxn.TransactionMetadata">
-              (coming soon!)
-            </div>
-          </div>
-        </div>
-        <div>
-          <span style="width: 15rem; display: inline-block;">Raw Transaction Hex:</span><span style="margin-right: 1rem;">{{thisTxn.RawTransactionHex.slice(0, 50)}}...</span>
-          <div (click)="copy(thisTxn.RawTransactionHex);" class="btn btn-light little-button" style="text-decoration: none;" >
-            <div class="divtext">
-              Copy
-            </div>
-          </div>
-
-        </div>
-        <!--{{thisTxn.SignatureHex}}-->
-        <div>
-          Transaction Inputs
-        </div>
-        <div *ngFor="let txnInput of thisTxn.Inputs; index as inputIndex" style="padding-left: 2rem;">
           <div>
-            Input #{{inputIndex}}
+            <a [routerLink]="['/']"
+               [queryParams]="{ 'block-height': blockRes.Header.Height , 'query-node': queryNode }"
+            >{{blockRes.Header.Height}}</a>
+
+            <app-external-explorer-link [path]="'blocks/' + blockRes.Header.Height"></app-external-explorer-link>
           </div>
-          <div style="padding-left: 2rem;">
-            <div class="d-flex my-4">
-              <span style="width: 15rem; display: inline-block;">Transaction ID:</span>
+        </div>
 
-              <div>
-                <a [routerLink]="['/']"
-                   [queryParams]="{ 'transaction-id': txnInput.TransactionIDBase58Check , 'query-node': queryNode }"
-                >{{txnInput.TransactionIDBase58Check}}</a>
+        <div class="d-flex my-2">
+          <span style="width: 15rem; display: inline-block;">Previous Block Hash:</span>
 
-                <app-external-explorer-link [path]="'txn/' + txnInput.TransactionIDBase58Check"></app-external-explorer-link>
-              </div>
-            </div>
-            <div>
-              <span style="width: 15rem; display: inline-block;">Index:</span>{{txnInput.Index}}
-            </div>
+          <div>
+            <a [routerLink]="['/']"
+               [queryParams]="{ 'block-hash': blockRes.Header.PrevBlockHashHex , 'query-node': queryNode }"
+            >{{blockRes.Header.PrevBlockHashHex}}</a>
+
+            <app-external-explorer-link
+              [path]="'blocks/' + blockRes.Header.PrevBlockHashHex"></app-external-explorer-link>
           </div>
         </div>
         <div>
-          Transaction Outputs
+          <span style="width: 15rem; display: inline-block;">Transaction Merkle Root:</span>{{blockRes.Header.TransactionMerkleRootHex}}
         </div>
-        <div *ngFor="let txnOutput of thisTxn.Outputs; index as outputIndex" style="padding-left: 2rem;">
-          <div>
-            Output #{{outputIndex}}
-          </div>
-          <div style="padding-left: 2rem;">
-            <div class="d-flex my-2">
-              <span style="width: 15rem; display: inline-block;">Public Key:</span>
-              <div>
-                <a [routerLink]="['/']"
-                   [queryParams]="{ 'public-key': txnOutput.PublicKeyBase58Check , 'query-node': queryNode }"
-                >{{txnOutput.PublicKeyBase58Check}}</a>
+        <div>
+          <span style="width: 15rem; display: inline-block;">Nonce:</span>{{blockRes.Header.Nonce}}
+        </div>
+        <div>
+          <span style="width: 15rem; display: inline-block;">Version:</span>{{blockRes.Header.Version}}
+        </div>
+      </div>
 
-                <app-external-explorer-link [path]="'u/' + txnOutput.PublicKeyBase58Check"></app-external-explorer-link>
+    </div>
+    <div *ngIf="txnRes != null">
+      <div style="padding-top: 1rem;" class="welcome" *ngIf="blockRes != null">
+        Block Transactions
+      </div>
+      <div *ngIf="txnRes.BalanceNanos">
+        <div style="padding-top: 1rem;" class="welcome">
+          Final Balance (Including Unconfirmed Transactions)
+        </div>
+        <h4 style="padding-top: 1rem;">
+          <b>
+            {{(txnRes.BalanceNanos / 1e9).toLocaleString('en-US', {minimumFractionDigits: 9})}}
+          </b>
+        </h4>
+      </div>
+      <div style="padding-top: 1rem;" class="welcome" *ngIf="blockRes == null">
+        Transactions Found
+      </div>
+      <div *ngFor="let thisTxn of txnRes.Transactions; index as txnIndex" style="padding-top: 1rem;">
+        <div>
+          <span>Transaction #{{txnIndex + (currentPage - 1)*PAGE_SIZE}}</span>
+          <span *ngIf="txnIndex === 0 && currentPage === 1"> (latest)</span>:
+        </div>
+        <div style="padding-left: 2rem;">
+          <div class="d-flex my-2">
+            <span style="width: 15rem; display: inline-block;">Transaction  ID:</span>
+
+            <div>
+              <a [routerLink]="['/']"
+                 [queryParams]="{ 'transaction-id': thisTxn.TransactionIDBase58Check , 'query-node': queryNode }"
+              >{{thisTxn.TransactionIDBase58Check}}</a>
+
+              <app-external-explorer-link
+                [path]="'txn/' + thisTxn.TransactionIDBase58Check"></app-external-explorer-link>
+            </div>
+          </div>
+
+          <div class="d-flex my-2">
+            <span style="width: 15rem; display: inline-block;">Block Hash:</span>
+            <div>
+              <a
+                *ngIf="thisTxn.BlockHashHex !== '0000000000000000000000000000000000000000000000000000000000000000' && !!thisTxn.BlockHashHex"
+                [routerLink]="['/']"
+                [queryParams]="{ 'block-hash': thisTxn.BlockHashHex , 'query-node': queryNode }"
+              >
+                <div style="display: inline;">{{thisTxn.BlockHashHex}}</div>
+                <app-external-explorer-link [path]="'blocks/' + thisTxn.BlockHashHex"></app-external-explorer-link>
+              </a>
+              <div
+                *ngIf="thisTxn.BlockHashHex === '0000000000000000000000000000000000000000000000000000000000000000' || !thisTxn.BlockHashHex"
+                style="display: inline; color: #ab1414;">
+                UNCONFIRMED
+                <app-external-explorer-link [path]="'mempool'"></app-external-explorer-link>
               </div>
             </div>
+          </div>
+          <div>
+            <span style="width: 15rem; display: inline-block;">Transaction Type:</span>{{thisTxn.TransactionType}}
+          </div>
+          <div
+            *ngIf="thisTxn.TransactionType === 'BITCOIN_EXCHANGE' && thisTxn.BlockHashHex === '0000000000000000000000000000000000000000000000000000000000000000'"
+            style="display: flex;">
+            <div style="width: 15rem; display: inline-block;">
+              Imporant:
+            </div>
+            <div style="color: #ab1414; display: inline-block; max-width: 20rem;">
+              This transaction type can take up to 24 hours to confirm. This is normal, and is due to the fact that
+              we have to wait for enough "work" to build on the Bitcoin blockchain before accepting it.
+            </div>
+          </div>
+          <div>
+            <span style="width: 15rem; display: inline-block; vertical-align: top;">Transaction Metadata:</span>
+            <div style="display: inline-block;">
+              <div *ngIf="thisTxn.TransactionMetadata">
+                <h3>Parsed Fields</h3>
+                <div>
+                  Total Input: {{(thisTxn.TransactionMetadata.BasicTransferTxindexMetadata.TotalInputNanos /
+                  1e9).toFixed(9)}}
+                </div>
+                <div>
+                  Total Output: {{(thisTxn.TransactionMetadata.BasicTransferTxindexMetadata.TotalOutputNanos /
+                  1e9).toFixed(9)}}
+                </div>
+                <div>
+                  Fees: {{(thisTxn.TransactionMetadata.BasicTransferTxindexMetadata.FeeNanos / 1e9).toFixed(9)}}
+                </div>
+
+                <div *ngIf="thisTxn.TransactionMetadata.BitcoinExchangeTxindexMetadata">
+                  <div>
+                    Bitcoin Burned: {{(thisTxn.TransactionMetadata.BitcoinExchangeTxindexMetadata.SatoshisBurned /
+                    1e8).toFixed(8)}}
+                  </div>
+                  <div>
+                    DeSo Created: {{(thisTxn.TransactionMetadata.BitcoinExchangeTxindexMetadata.NanosCreated /
+                    1e9).toFixed(9)}}
+                  </div>
+                  <div>
+                    Total DeSo Purchased Before:
+                    {{(thisTxn.TransactionMetadata.BitcoinExchangeTxindexMetadata.TotalNanosPurchasedBefore /
+                    1e9).toFixed(9)}}
+                  </div>
+                  <div>
+                    Total DeSo Purchased After:
+                    {{(thisTxn.TransactionMetadata.BitcoinExchangeTxindexMetadata.TotalNanosPurchasedAfter /
+                    1e9).toFixed(9)}}
+                  </div>
+                  <div>
+                    Bitcoin Transaction ID: <a
+                    href="https://www.blockchain.com/btc/tx/{{thisTxn.TransactionMetadata.BitcoinExchangeTxindexMetadata.BitcoinTxnHash}}"
+                    target="_blank">
+                    {{thisTxn.TransactionMetadata.BitcoinExchangeTxindexMetadata.BitcoinTxnHash}}
+                  </a>
+                  </div>
+                </div>
+
+                <h3 class="mt-3">Raw Metadata</h3>
+                <pre>{{thisTxn.TransactionMetadata | json}}</pre>
+              </div>
+              <div *ngIf="!thisTxn.TransactionMetadata">
+                (coming soon!)
+              </div>
+            </div>
+          </div>
+          <div>
+            <span style="width: 15rem; display: inline-block;">Raw Transaction Hex:</span><span
+            style="margin-right: 1rem;">{{thisTxn.RawTransactionHex.slice(0, 50)}}...</span>
+            <div (click)="copy(thisTxn.RawTransactionHex);" class="btn btn-light little-button"
+                 style="text-decoration: none;">
+              <div class="divtext">
+                Copy
+              </div>
+            </div>
+
+          </div>
+          <!--{{thisTxn.SignatureHex}}-->
+          <div>
+            Transaction Inputs
+          </div>
+          <div *ngFor="let txnInput of thisTxn.Inputs; index as inputIndex" style="padding-left: 2rem;">
             <div>
-              <span style="width: 15rem; display: inline-block;">DeSo:</span>{{(txnOutput.AmountNanos / 1e9).toFixed(9)}}
+              Input #{{inputIndex}}
+            </div>
+            <div style="padding-left: 2rem;">
+              <div class="d-flex my-4">
+                <span style="width: 15rem; display: inline-block;">Transaction ID:</span>
+
+                <div>
+                  <a [routerLink]="['/']"
+                     [queryParams]="{ 'transaction-id': txnInput.TransactionIDBase58Check , 'query-node': queryNode }"
+                  >{{txnInput.TransactionIDBase58Check}}</a>
+
+                  <app-external-explorer-link
+                    [path]="'txn/' + txnInput.TransactionIDBase58Check"></app-external-explorer-link>
+                </div>
+              </div>
+              <div>
+                <span style="width: 15rem; display: inline-block;">Index:</span>{{txnInput.Index}}
+              </div>
+            </div>
+          </div>
+          <div>
+            Transaction Outputs
+          </div>
+          <div *ngFor="let txnOutput of thisTxn.Outputs; index as outputIndex" style="padding-left: 2rem;">
+            <div>
+              Output #{{outputIndex}}
+            </div>
+            <div style="padding-left: 2rem;">
+              <div class="d-flex my-2">
+                <span style="width: 15rem; display: inline-block;">Public Key:</span>
+                <div>
+                  <a [routerLink]="['/']"
+                     [queryParams]="{ 'public-key': txnOutput.PublicKeyBase58Check , 'query-node': queryNode }"
+                  >{{txnOutput.PublicKeyBase58Check}}</a>
+
+                  <app-external-explorer-link
+                    [path]="'u/' + txnOutput.PublicKeyBase58Check"></app-external-explorer-link>
+                </div>
+              </div>
+              <div>
+                <span style="width: 15rem; display: inline-block;">DeSo:</span>{{(txnOutput.AmountNanos /
+                1e9).toFixed(9)}}
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
 
-  </div>
-  <div *ngIf="txnsLoading" style="margin-top: 1rem;">
-    <h1>
-      Loading...
-    </h1>
-  </div>
-  <div style="height: 10vh;">
+    </div>
+    <div *ngIf="txnsLoading" style="margin-top: 1rem;">
+      <h1>
+        Loading...
+      </h1>
+    </div>
+    <div style="height: 10vh;">
+    </div>
   </div>
 </div>
+
