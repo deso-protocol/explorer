@@ -48,18 +48,20 @@ export class AppComponent implements OnInit {
   }
 
   getExplorerPathBasedOnQuery(): string {
+    const query =  this.explorerQuery.trim();
+
     if (this.queryType === 'mempool') {
       return 'mempool';
     }
     // TODO: what about tip?
     if (this.queryType === 'block-hash' || this.queryType === 'block-height') {
-      return 'blocks/' + this.explorerQuery;
+      return 'blocks/' + query;
     }
     if (this.queryType === 'transaction-id') {
-      return 'txn/' + this.explorerQuery;
+      return 'txn/' + query;
     }
     if (this.queryType === 'public-key') {
-      return 'u/' + this.explorerQuery;
+      return 'u/' + query;
     }
     return '';
   }
