@@ -19,6 +19,7 @@ COPY ./tsconfig.json .
 COPY ./tsconfig.app.json .
 COPY ./tslint.json .
 COPY ./src ./src
+COPY ./assets ./assets
 
 RUN npm run build_prod
 

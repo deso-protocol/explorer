@@ -1,7 +1,7 @@
-import {ChangeDetectorRef, Component, OnInit} from '@angular/core';
-import {ActivatedRoute, Params, Router} from '@angular/router';
-import {HttpClient} from '@angular/common/http';
-import {debounceTime} from 'rxjs/operators';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { ActivatedRoute, Params, Router } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
+import { debounceTime } from 'rxjs/operators';
 
 @Component({
   selector: 'app-root',
@@ -18,6 +18,7 @@ export class AppComponent implements OnInit {
   }
 
   explorerQuery = '';
+  queryType = '';
   explorerResponse = null;
   queryNode = '';
   errorStr = ('Please enter a valid DeSo public key, transaction ID, block ' +
@@ -29,12 +30,12 @@ export class AppComponent implements OnInit {
   hasParam = false;
 
   hasInitialized = false;
-  txnsLoading =  false;
+  txnsLoading = false;
 
   // Pagination variables
   PAGE_SIZE = 200;
   currentPage = 1;
-  pageCache: {[k: number]: any} = {};
+  pageCache: { [k: number]: any } = {};
   lastTransactionIDBase58Check = '';
   lastPublicKeyTransactionIndex = -1;
 
@@ -44,6 +45,25 @@ export class AppComponent implements OnInit {
       this.hasInitialized = true;
       this.refreshParams(params);
     });
+  }
+
+  getExplorerPathBasedOnQuery(): string {
+    const query =  this.explorerQuery.trim();
+
+    if (this.queryType === 'mempool') {
+      return 'mempool';
+    }
+    // TODO: what about tip?
+    if (this.queryType === 'block-hash' || this.queryType === 'block-height') {
+      return 'blocks/' + query;
+    }
+    if (this.queryType === 'transaction-id') {
+      return 'txn/' + query;
+    }
+    if (this.queryType === 'public-key') {
+      return 'u/' + query;
+    }
+    return '';
   }
 
   refreshParams(params: any): void {
@@ -57,16 +77,22 @@ export class AppComponent implements OnInit {
 
     let newQuery = ''
     if (params.mempool) {
+      this.queryType = 'mempool';
       newQuery = 'mempool';
     } else if (params['block-hash'] != null) {
+      this.queryType = 'block-hash';
       newQuery = params['block-hash'];
     } else if (params['block-height'] != null) {
+      this.queryType = 'block-height';
       newQuery = params['block-height'];
     } else if (params['transaction-id'] != null) {
+      this.queryType = 'transaction-id';
       newQuery = params['transaction-id'];
     } else if (params['public-key'] != null) {
+      this.queryType = 'public-key';
       newQuery = params['public-key'];
     } else {
+      this.queryType = 'tip';
       newQuery = 'tip';
     }
 
@@ -135,38 +161,48 @@ export class AppComponent implements OnInit {
     }
 
     if (this.explorerQuery.startsWith('BC') || this.explorerQuery.startsWith('tBC')) {
-      this.router.navigate(['/'], { queryParams: {
-        'query-node': this.queryNode,
-        'public-key': this.explorerQuery,
-        'last-txn-idx': this.lastPublicKeyTransactionIndex,
-        'page': this.currentPage,
-      }});
+      this.router.navigate(['/'], {
+        queryParams: {
+          'query-node': this.queryNode,
+          'public-key': this.explorerQuery,
+          'last-txn-idx': this.lastPublicKeyTransactionIndex,
+          'page': this.currentPage,
+        }
+      });
 
     } else if (this.explorerQuery === 'mempool') {
-      this.router.navigate(['/'], { queryParams: {
-        'query-node': this.queryNode,
-        'last-txn-hash': this.lastTransactionIDBase58Check,
-        'page': this.currentPage,
-        mempool: true
-      }});
+      this.router.navigate(['/'], {
+        queryParams: {
+          'query-node': this.queryNode,
+          'last-txn-hash': this.lastTransactionIDBase58Check,
+          'page': this.currentPage,
+          mempool: true
+        }
+      });
 
     } else if (this.explorerQuery.startsWith('0')) {
-      this.router.navigate(['/'], { queryParams: {
-        'query-node': this.queryNode,
-        'block-hash': this.explorerQuery
-       }});
+      this.router.navigate(['/'], {
+        queryParams: {
+          'query-node': this.queryNode,
+          'block-hash': this.explorerQuery
+        }
+      });
 
     } else if (this.explorerQuery.startsWith('3Ju') || this.explorerQuery.startsWith('CbU') || this.explorerQuery.length === 64) {
-      this.router.navigate(['/'], { queryParams: {
-        'query-node': this.queryNode,
-        'transaction-id': this.explorerQuery
-      }});
+      this.router.navigate(['/'], {
+        queryParams: {
+          'query-node': this.queryNode,
+          'transaction-id': this.explorerQuery
+        }
+      });
 
     } else if (parseInt(this.explorerQuery, 10) != null && !isNaN(parseInt(this.explorerQuery, 10))) {
-      this.router.navigate(['/'], { queryParams: {
-        'query-node': this.queryNode,
-        'block-height': this.explorerQuery
-      }});
+      this.router.navigate(['/'], {
+        queryParams: {
+          'query-node': this.queryNode,
+          'block-height': this.explorerQuery
+        }
+      });
 
     } else {
       alert(this.errorStr);
@@ -247,7 +283,7 @@ export class AppComponent implements OnInit {
 
     if (query === 'tip') {
       this.httpClient.get<any>(
-        `${this.queryNode}/api/v1`, { withCredentials: true }
+        `${this.queryNode}/api/v1`, {withCredentials: true}
       ).subscribe((res) => this.responseHandler(this, res), (err) => this.errorHandler(this, err));
     } else if (query.startsWith('BC') || query.startsWith('tBC')) {
       // If the string starts with "BC" we treat it as a public key query.
@@ -257,41 +293,41 @@ export class AppComponent implements OnInit {
           LastTransactionIDBase58Check: this.lastTransactionIDBase58Check,
           LastPublicKeyTransactionIndex: this.lastPublicKeyTransactionIndex,
           Limit: this.PAGE_SIZE,
-        }, { withCredentials: true }
-        ).subscribe((res) => this.responseHandler(this, res), (err) => this.errorHandler(this, err));
+        }, {withCredentials: true}
+      ).subscribe((res) => this.responseHandler(this, res), (err) => this.errorHandler(this, err));
 
     } else if (query === 'mempool') {
       this.httpClient.post<any>(
-      `${this.queryNode}/api/v1/transaction-info`, {
+        `${this.queryNode}/api/v1/transaction-info`, {
           IsMempool: true,
           LastTransactionIDBase58Check: this.lastTransactionIDBase58Check,
           Limit: this.PAGE_SIZE,
-      }, { withCredentials: true }
+        }, {withCredentials: true}
       ).subscribe((res) => this.responseHandler(this, res), (err) => this.errorHandler(this, err));
     } else if (query.startsWith('0')) {
       // If it starts with a 0, we know we're dealing with a block hash.
       this.httpClient.post<any>(
         `${this.queryNode}/api/v1/block`, {
-        HashHex: query,
-        FullBlock: true,
-      }, { withCredentials: true }
+          HashHex: query,
+          FullBlock: true,
+        }, {withCredentials: true}
       ).subscribe((res) => this.responseHandler(this, res), (err) => this.errorHandler(this, err));
 
     } else if (query.startsWith('3Ju') || query.startsWith('CbU') || query.length === 64) {
       // If the string starts with 3Ju/CbU/or 64 chars (hex rosetta version) we treat it as a transaction ID.
       this.httpClient.post<any>(
-      `${this.queryNode}/api/v1/transaction-info`, {
-        TransactionIDBase58Check: query,
-      }, { withCredentials: true }
+        `${this.queryNode}/api/v1/transaction-info`, {
+          TransactionIDBase58Check: query,
+        }, {withCredentials: true}
       ).subscribe((res) => this.responseHandler(this, res), (err) => this.errorHandler(this, err));
 
     } else if (parseInt(query, 10) != null && !isNaN(parseInt(query, 10))) {
       // As a last attempt, if the query can be parsed as a block height, then do that.
       this.httpClient.post<any>(
-      `${this.queryNode}/api/v1/block`, {
-        Height: parseInt(query, 10),
-        FullBlock: true,
-      }, { withCredentials: true }
+        `${this.queryNode}/api/v1/block`, {
+          Height: parseInt(query, 10),
+          FullBlock: true,
+        }, {withCredentials: true}
       ).subscribe((res) => this.responseHandler(this, res), (err) => this.errorHandler(this, err));
 
     } else {
